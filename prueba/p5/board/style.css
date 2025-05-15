@@ -20,6 +20,7 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 3px solid #333; /* Borde más oscuro y marcado */
-    background-color: #fff; /* Fondo blanco para el tablero */
+    border: 3px solid #333;
+    background-color: #fff;
+    border-radius: 4px;
 }
