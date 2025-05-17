@@ -117,33 +117,21 @@ export const toolbox = {
       custom: 'PROCEDURE',
     },
     {
-      kind: 'category',
-      name: 'Actions',
-      categorystyle: 'actions_category',
-      custom: 'ACTION',
-      contents: [
-        {
-          kind: 'block',
-          type: 'call_moveUp',
-        },
-        {
-          kind: 'block',
-          type: 'call_moveDown',
-        },
-        {
-          kind: 'block',
-          type: 'call_moveLeft',
-        },
-        {
-          kind: 'block',
-          type: 'call_moveRight',
-        },
-      ],
+      "kind": "category",
+      "name": "Actions",
+      "style": "logic_category",
+      "contents": [
+        { "kind": "block", "type": "call_moveUp" },
+        { "kind": "block", "type": "call_moveDown" },
+        { "kind": "block", "type": "call_moveLeft" },
+        { "kind": "block", "type": "call_moveRight" },
+        { "kind": "block", "type": "call_paint" }
+      ]
     },
-        {
+    {
       kind: 'category',
       name: 'Game actions',
-      categorystyle: 'game_actions_category',
+      categorystyle: 'math_category',
       custom: 'GAME_ACTION',
     },
   ],

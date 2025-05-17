@@ -3,26 +3,27 @@
  * Copyright 2023 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import * as Blockly from 'blockly';
 import {blocks} from './blocks/text';
+import {customBlocks} from './blocks/custom_blocks';
 import {forBlock} from './generators/javascript';
 import {javascriptGenerator} from 'blockly/javascript';
 import {save, load} from './serialization';
 import {toolbox} from './toolbox';
+import * as Board from './board.js';
 import './index.css';
-import {blocks as customBlocks} from './blocks/custom_blocks';
 
 // Register the blocks and generator with Blockly
 Blockly.common.defineBlocks(blocks);
+Blockly.common.defineBlocks(customBlocks);
 Object.assign(javascriptGenerator.forBlock, forBlock);
+
 
 // Set up UI elements and inject Blockly
 const codeDiv = document.getElementById('generatedCode').firstChild;
 const outputDiv = document.getElementById('output');
 const blocklyDiv = document.getElementById('blocklyDiv');
 const ws = Blockly.inject(blocklyDiv, {toolbox});
-Blockly.common.defineBlocks(customBlocks);
 
 // This function resets the code and output divs, shows the
 // generated code from the workspace, and evals the code.

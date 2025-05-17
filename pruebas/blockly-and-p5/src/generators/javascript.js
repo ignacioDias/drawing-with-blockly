@@ -25,16 +25,19 @@ forBlock['add_text'] = function (block, generator) {
   const code = `${addText}(${text});\n`;
   return code;
 };
-
-forBlock['call_moveUp'] = function (_block) {
+forBlock['call_moveUp'] = function(block, generator) {
   return 'moveUp();\n';
 };
-forBlock['call_moveDown'] = function (_block) {
+forBlock['call_moveDown'] = function (block, generator) {
   return 'moveDown();\n';
 };
-forBlock['call_moveLeft'] = function (_block) {
+forBlock['call_moveLeft'] = function(block, generator) {
   return 'moveLeft();\n';
 };
-forBlock['call_moveRight'] = function (_block) {
+forBlock['call_moveRight'] = function(block, generator) {
   return 'moveRight();\n';
+};
+forBlock['call_paint'] = function(block) {
+  const color = block.getFieldValue('COLOR');
+  return `paint("${color}");\n`;
 };

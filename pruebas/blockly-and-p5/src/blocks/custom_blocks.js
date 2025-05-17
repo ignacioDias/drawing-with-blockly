@@ -3,69 +3,67 @@ import * as Blockly from 'blockly/core';
 //   return ['null', Order.ATOMIC];
 // };
 
-const callMoveUp = {
-  type: 'call_moveUp',
-  message0: 'Llamar a moveUp()',
-  args0: [],
-  previousStatement: null,
-  nextStatement: null,
-  colour: 230,
-  tooltip: 'Llama a la función moveUp()',
-  helpUrl: '',
-};
-// Blockly.Blocks.make_pin = {
-//   init: function() {
-//     if (profile.default.description === "Scribbler Robot") {
-//       this.setHelpUrl(Blockly.MSG_S3_IO_HELPURL);
-//     } else {
-//       this.setHelpUrl(Blockly.MSG_PINS_HELPURL);
-//     }
-//     this.setTooltip(Blockly.MSG_MAKE_PIN_TOOLTIP);
-//     this.setColour(BlocklyColourPalette.getColor('io'));
-//     this.setPreviousStatement(true, "Block");
-//     this.setNextStatement(true, null);
-//     this.appendDummyInput()
-//       .appendField("make PIN")
-//       .appendField(new Blockly.FieldDropdown(profile.default.digital), "PIN")
-//       .appendField(new Blockly.FieldDropdown([["high", "HIGH"], ["low", "LOW"], ["toggle", "TOGGLE"]]));
-//   }
-// };
 
-const callMoveDown = {
-  type: 'call_moveDown',
-  message0: 'Llamar a moveDown()',
-  args0: [],
-  previousStatement: null,
-  nextStatement: null,
-  colour: 230,
-  tooltip: 'Llama a la función moveDown()',
-  helpUrl: '',
-};
-
-const callMoveLeft = {
-  type: 'call_moveLeft',
-  message0: 'Llamar a moveLeft()',
-  args0: [],
-  previousStatement: null,
-  nextStatement: null,
-  colour: 230,
-  tooltip: 'Llama a la función moveLeft()',
-  helpUrl: '',
-};
-
-const callMoveRight = {
-  type: 'call_moveRight',
-  message0: 'Llamar a moveRight()',
-  args0: [],
-  previousStatement: null,
-  nextStatement: null,
-  colour: 230,
-  tooltip: 'Llama a la función moveRight()',
-  helpUrl: '',
-};
-export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
-  callMoveUp,
-  callMoveDown,
-  callMoveRight,
-  callMoveLeft,
+export const customBlocks = Blockly.common.createBlockDefinitionsFromJsonArray([
+  {
+    "type": "call_moveUp",
+    "message0": "move up",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 160,
+    "tooltip": "moves up",
+    "helpUrl": ""
+  },
+  {
+    "type": "call_moveDown",
+    "message0": "move down",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 160,
+    "tooltip": "moves down",
+    "helpUrl": ""
+  },
+  {
+    "type": "call_moveLeft",
+    "message0": "move left",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 160,
+    "tooltip": "moves left",
+    "helpUrl": ""
+  },
+  {
+    "type": "call_moveRight",
+    "message0": "move right",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 160,
+    "tooltip": "moves right",
+    "helpUrl": ""
+  },
+  {
+    "type": "call_paint",
+    "message0": "paint current cell with color: %1",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "COLOR",
+        "options": [
+          ["Red", "#ff0000"],
+          ["Green", "#00ff00"],
+          ["Blue", "#0000ff"],
+          ["Yellow", "#ffff00"],
+          ["Orange", "#ffa500"],
+          ["Purple", "#800080"],
+          ["Black", "#000000"],
+          ["White", "#ffffff"]
+        ]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 230,
+    "tooltip": "Paint the current cell with the selected color",
+    "helpUrl": ""
+  }
 ]);
