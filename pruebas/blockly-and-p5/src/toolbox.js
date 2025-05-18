@@ -119,20 +119,27 @@ export const toolbox = {
     {
       "kind": "category",
       "name": "Actions",
-      "style": "logic_category",
+      "categoryStyle": "logic_category",
       "contents": [
         { "kind": "block", "type": "call_moveUp" },
         { "kind": "block", "type": "call_moveDown" },
         { "kind": "block", "type": "call_moveLeft" },
         { "kind": "block", "type": "call_moveRight" },
+        { "kind": "block", "type": "call_eraseColor" },
+        { "kind": "block", "type": "call_setStartingRow" },
+        { "kind": "block", "type": "call_setStartingCol" },
         { "kind": "block", "type": "call_paint" }
       ]
     },
     {
-      kind: 'category',
-      name: 'Game actions',
-      categorystyle: 'math_category',
-      custom: 'GAME_ACTION',
+      "kind": 'category',
+      "name": 'Game actions',
+      "categorystyle": 'math_category',
+      "contents": [
+        { "kind": "block", "type": "get_current_color" },
+        { "kind": "block", "type": "win_game" },
+        { "kind": "block", "type": "lose_game" }
+      ]
     },
   ],
 };

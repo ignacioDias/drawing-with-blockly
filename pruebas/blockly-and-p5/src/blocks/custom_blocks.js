@@ -65,5 +65,79 @@ export const customBlocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     "colour": 230,
     "tooltip": "Paint the current cell with the selected color",
     "helpUrl": ""
+  },
+  {
+    "type": "call_eraseColor",
+    "message0": "erase color",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 160,
+    "tooltip": "erase color of current cell",
+    "helpUrl": ""
+  },
+  {
+    "type": "get_current_color",
+    "message0": "get current color",
+    "output": "String",
+    "colour": 160,
+    "tooltip": "Returns the current color",
+    "helpUrl": ""
+  },
+  {
+    "type": "win_game",
+    "message0": "win game",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 160,
+    "tooltip": "win game",
+    "helpUrl": ""
+  },
+  {
+    "type": "lose_game",
+    "message0": "lose game",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 160,
+    "tooltip": "lose game",
+    "helpUrl": ""
+  },
+  {
+    "type": "call_setStartingRow",
+    "message0": "set starting Row to %1",
+    "args0": [
+      {
+        "type": "field_number",
+        "name": "STARTING_ROW",
+        "value": 0,
+        "min": 0,
+        "max": 19,
+        "precision": 1
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 290,
+    "tooltip": "Set starting row to a given integer value",
+    "helpUrl": ""
+  },
+  {
+    "type": "call_setStartingCol",
+    "message0": "set starting Col to %1",
+    "args0": [
+      {
+        "type": "field_number",
+        "name": "STARTING_COL",
+        "value": 0,
+        "min": 0,
+        "max": 19,
+        "precision": 1
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 290,
+    "tooltip": "Set starting Col to a given integer value",
+    "helpUrl": ""
   }
+
 ]);

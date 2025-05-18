@@ -24,22 +24,23 @@ const codeDiv = document.getElementById('generatedCode').firstChild;
 const outputDiv = document.getElementById('output');
 const blocklyDiv = document.getElementById('blocklyDiv');
 const ws = Blockly.inject(blocklyDiv, {toolbox});
+const runButton = document.getElementById('run-button');
 
 // This function resets the code and output divs, shows the
 // generated code from the workspace, and evals the code.
 // In a real application, you probably shouldn't use `eval`.
-const runCode = () => {
+const processCode = () => {
   const code = javascriptGenerator.workspaceToCode(ws);
   codeDiv.innerText = code;
 
   outputDiv.innerHTML = '';
 
-  eval(code);
 };
 
 // Load the initial state from storage and run the code.
 load(ws);
-runCode();
+processCode();
+Board.setup(); 
 
 // Every time the workspace changes state, save the changes to storage.
 ws.addChangeListener((e) => {
@@ -61,5 +62,26 @@ ws.addChangeListener((e) => {
   ) {
     return;
   }
-  runCode();
+  processCode();
 });
+
+runButton.addEventListener('click', () => {
+  Board.drawBoard();
+  const code = javascriptGenerator.workspaceToCode(ws);
+  eval(code);
+});
+
+window.paint = Board.paint;
+window.eraseColor = Board.eraseColor;
+window.getCurrentColor = Board.getCurrentColor;
+window.moveUp = Board.moveUp;
+window.moveDown = Board.moveDown;
+window.moveLeft = Board.moveLeft;
+window.moveRight = Board.moveRight;
+window.drawBoard = Board.drawBoard;
+window.setStartingRow = Board.setStartingRow;
+window.setStartingCol = Board.setStartingCol;
+// Usage:
+// Board.paint('#ff0000');
+// Board.moveUp();
+// etc.

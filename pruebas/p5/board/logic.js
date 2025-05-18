@@ -42,6 +42,14 @@ function paint(color) {
     }
 }
 
+function eraseColor() {
+    if (isValidPosition(currentCol, currentRow)) {
+        board[currentRow][currentCol] = "white";
+        drawBoard();
+        highlightCurrentCell();
+    }
+}
+
 function mousePressed() {
     const col = Math.floor(mouseX / CELL_SIZE);
     const row = Math.floor(mouseY / CELL_SIZE);

@@ -10,15 +10,11 @@ code {
 
 #pageContainer {
   display: flex;
-  width: 100%;
-  max-width: 100vw;
+  width: 100vw;
   height: 100vh;
-}
-
-#blocklyDiv {
-  flex-basis: 100%;
-  height: 100%;
-  min-width: 600px;
+  align-items: center;      /* Center vertically */
+  justify-content: center;  /* Center horizontally */
+  gap: 2rem;                /* Space between board and Blockly */
 }
 
 #outputPane {
@@ -27,7 +23,27 @@ code {
   width: 400px;
   flex: 0 0 400px;
   overflow: auto;
-  margin: 1rem;
+  margin: 1rem 0 1rem 1rem;
+}
+
+#blocklyDiv {
+  flex: 1 1 600px;
+  height: 600px;
+  min-width: 600px;
+  max-width: 900px;
+  margin-left: 2rem;
+}
+
+#board-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 420px;
+  height: 420px;
+  background: #f4f4f4;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  margin: 0 0 2rem 0;        /* Space below the board */
 }
 
 #generatedCode {
@@ -37,4 +53,31 @@ code {
 
 #output {
   height: 50%;
+}
+
+#run-button {
+  background: linear-gradient(135deg, #6a11cb, #2575fc); /* Gradiente de color */
+  color: white;
+  padding: 15px 30px; /* Espaciado interno */
+  border: none; /* Sin borde */
+  border-radius: 50px; /* Bordes redondeados */
+  font-size: 16px;
+  margin: 2rem 0 2rem 0;     /* Space above and below the button */
+  align-self: center;   
+  font-weight: 600; /* Negrita */
+  text-transform: uppercase; /* Letras en mayúsculas */
+  cursor: pointer; /* Manita al pasar por encima */
+  transition: all 0.3s ease-in-out; /* Transición suave */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+#run-button:hover {
+  transform: translateY(-5px); /* Desplazamiento al pasar el mouse */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Sombra más intensa */
+  background: linear-gradient(135deg, #2575fc, #6a11cb); /* Invertir el gradiente */
+}
+
+#run-button:active {
+  transform: translateY(2px); /* Pequeño desplazamiento al hacer clic */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra más suave */
 }
