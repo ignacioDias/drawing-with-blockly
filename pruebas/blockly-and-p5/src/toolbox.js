@@ -128,7 +128,9 @@ export const toolbox = {
         { "kind": "block", "type": "call_eraseColor" },
         { "kind": "block", "type": "call_setStartingRow" },
         { "kind": "block", "type": "call_setStartingCol" },
-        { "kind": "block", "type": "call_paint" }
+        { "kind": "block", "type": "color_value" },
+        { "kind": "block", "type": "call_paint" },
+        { "kind": "block", "type": "call_paint_with_param" }
       ]
     },
     {
@@ -137,6 +139,9 @@ export const toolbox = {
       "categorystyle": 'math_category',
       "contents": [
         { "kind": "block", "type": "get_current_color" },
+        { "kind": "block", "type": "is_current_cell_painted" },
+        { "kind": "block", "type": "get_current_row" },
+        { "kind": "block", "type": "get_current_column" },
         { "kind": "block", "type": "win_game" },
         { "kind": "block", "type": "lose_game" }
       ]

@@ -138,6 +138,68 @@ export const customBlocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     "colour": 290,
     "tooltip": "Set starting Col to a given integer value",
     "helpUrl": ""
-  }
-
+  },
+  {
+  "type": "color_value",
+  "message0": "color %1",
+  "args0": [
+    {
+      "type": "field_dropdown",
+      "name": "COLOR",
+      "options": [
+        ["Red", "#ff0000"],
+        ["Green", "#00ff00"],
+        ["Blue", "#0000ff"],
+        ["Yellow", "#ffff00"],
+        ["Orange", "#ffa500"],
+        ["Purple", "#800080"],
+        ["Black", "#000000"],
+        ["White", "#ffffff"]
+      ]
+    }
+  ],
+  "output": "String",
+  "colour": 160,
+  "tooltip": "Choose a color",
+  "helpUrl": ""
+  },
+  {
+  "type": "call_paint_with_param",
+  "message0": "paint current cell with color: %1",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "COLOR"
+    }
+  ],
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 230,
+  "tooltip": "Paint the current cell with a color from a connected block",
+  "helpUrl": ""
+  },
+  {
+    "type": "is_current_cell_painted",
+    "message0": "Is current cell painted",
+    "colour": 160,
+    "tooltip": "True if the current cell has a color asigned",
+    "helpUrl": "",
+    "output": "Boolean"
+  },
+  {
+    "type": "get_current_column",
+    "message0": "Get current column",
+    "colour": 160,
+    "tooltip": "Get current column",
+    "helpUrl": "",
+    "output": "Number"
+  },
+    {
+    "type": "get_current_row",
+    "message0": "Get current row",
+    "colour": 160,
+    "tooltip": "Get current row",
+    "helpUrl": "",
+    "output": "Number"
+  },
 ]);

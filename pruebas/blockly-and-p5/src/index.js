@@ -81,6 +81,9 @@ window.moveRight = Board.moveRight;
 window.drawBoard = Board.drawBoard;
 window.setStartingRow = Board.setStartingRow;
 window.setStartingCol = Board.setStartingCol;
+window.getCurrentColumn = Board.getCurrentColumn;
+window.getCurrentRow = Board.getCurrentRow;
+window.isCurrentCellPainted = Board.isCurrentCellPainted;
 // Usage:
 // Board.paint('#ff0000');
 // Board.moveUp();

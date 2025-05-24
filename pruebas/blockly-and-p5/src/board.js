@@ -23,23 +23,6 @@ export function setup() {
     });
 }
 
-export function setStartingCol(col) {
-    if(col >= 0 && col < COLS) {
-        currentCol = col;
-        drawBoard();
-        highlightCurrentCell();
-    }
-}
-
-export function setStartingRow(row) {
-    if(row >= 0 && row < ROWS) {
-        currentRow = row;
-        drawBoard();
-        highlightCurrentCell();
-    }
-}
-
-
 function initBoard() {
     for (let row = 0; row < ROWS; row++) {
         board[row] = [];
@@ -61,6 +44,25 @@ export function drawBoard(sk = p) {
     highlightCurrentCell(sk);
 }
 
+
+export function setStartingCol(col) {
+    if(col >= 0 && col < COLS) {
+        currentCol = col;
+        drawBoard();
+        highlightCurrentCell();
+    }
+}
+
+export function setStartingRow(row) {
+    if(row >= 0 && row < ROWS) {
+        currentRow = row;
+        drawBoard();
+        highlightCurrentCell();
+    }
+}
+
+
+
 export function paint(color) {
     if (isValidPosition(currentCol, currentRow)) {
         board[currentRow][currentCol] = color;
@@ -71,7 +73,7 @@ export function paint(color) {
 
 export function eraseColor() {
     if (isValidPosition(currentCol, currentRow)) {
-        board[currentRow][currentCol] = "white";
+        board[currentRow][currentCol] = "#ffffff";
         drawBoard();
         highlightCurrentCell();
     }
@@ -97,7 +99,6 @@ function moveBy(dx, dy) {
     const newRow = currentRow + dy;
 
     if (isValidPosition(newCol, newRow)) {
-        updateTitle(`Posición actual: (${currentRow}, ${currentCol})`);
         drawBoard();
         currentCol = newCol;
         currentRow = newRow;
@@ -121,7 +122,15 @@ function highlightCurrentCell(sk = p) {
     sk.rect(currentCol * CELL_SIZE, currentRow * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 }
 
-function updateTitle(text) {
-    const title = document.querySelector("h1");
-    if (title) title.textContent = text;
+export function isCurrentCellPainted() {
+    if (!isValidPosition(currentCol, currentRow)) return false;
+    return board[currentRow][currentCol] != '#ffffff';
+}
+
+export function getCurrentRow() {
+    return currentRow;
+}
+
+export function getCurrentColumn() {
+    return currentCol;
 }

@@ -65,3 +65,26 @@ forBlock['call_setStartingCol'] = function(block) {
   const startingCol = block.getFieldValue('STARTING_COL');
   return `setStartingCol(${startingCol});\n`;
 };
+
+forBlock['color_value'] = function(block) {
+  const color = block.getFieldValue('COLOR');
+  return [`"${color}"`, Order.ATOMIC];
+};
+
+forBlock['call_paint_with_param'] = function(block, generator) {
+  const color = generator.valueToCode(block, 'COLOR', Order.NONE) || '""';
+  return `paint(${color});\n`;
+};
+
+forBlock['is_current_cell_painted'] = function(block, generator) {
+  return ['isCurrentCellPainted()', Order.FUNCTION_CALL];
+};
+
+forBlock['get_current_column'] = function() {
+  return ['getCurrentColumn()', Order.FUNCTION_CALL];
+};
+
+forBlock['get_current_row'] = function() {
+  return ['getCurrentRow()', Order.FUNCTION_CALL];
+};
+
