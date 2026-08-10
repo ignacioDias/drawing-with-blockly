@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import * as Blockly from 'blockly';
-import {blocks} from './blocks/text';
-import {customBlocks} from './blocks/custom_blocks';
-import {forBlock} from './generators/javascript';
+import {blocks} from '../../blocks/text';
+import {customBlocks} from '../../blocks/custom_blocks';
+import {forBlock} from '../../generators/javascript';
 import {javascriptGenerator} from 'blockly/javascript';
-import {save, load} from './serialization';
-import {getToolbox} from './toolbox';
-import * as Board from './board.js';
+import {save, load} from '../../shared/serialization';
+import {getToolbox} from '../../shared/toolbox';
+import * as Board from '../../features/board/board';
 import {
   LANGUAGES,
   THEMES,
@@ -19,9 +19,9 @@ import {
   readTheme,
   writeLanguage,
   writeTheme,
-} from './preferences';
-import {translations} from './translations';
-import './index.css';
+} from '../../shared/preferences';
+import {translations} from '../../shared/translations';
+import './styles.css';
 
 const levelParams = new URLSearchParams(window.location.search);
 const currentLevel = levelParams.get('level') || '1';

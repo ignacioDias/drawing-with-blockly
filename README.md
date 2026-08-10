@@ -1,50 +1,225 @@
-# Blockly Sample App
+# Drawing With Blockly
 
-## Purpose
+A multi-page Blockly + p5.js app where users pick a level, then solve drawing challenges by programming with visual blocks.
 
-This app illustrates how to use Blockly together with common programming tools like node/npm, webpack, typescript, eslint, and others. You can use it as the starting point for your own application and modify it as much as you'd like. It contains basic infrastructure for running, building, testing, etc. that you can use even if you don't understand how to configure the related tool yet. When your needs outgrow the functionality provided here, you can replace the provided configuration or tool with your own.
+This README is written as a full onboarding guide: from first run to architecture, customization, and extension.
 
-## Quick Start
+## 1. What This Project Does
 
-1. [Install](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) npm if you haven't before.
-2. Run [`npx @blockly/create-package app <application-name>`](https://www.npmjs.com/package/@blockly/create-package) to clone this application to your own machine.
-3. Run `npm install` to install the required dependencies.
-4. Run `npm run start` to run the development server and see the app in action.
-5. If you make any changes to the source code, just refresh the browser while the server is running to see them.
+- Home page (`index.html`): shows a grid of drawing levels.
+- Drawing page (`drawing.html`): opens Blockly workspace + drawing board for the selected level.
+- Theme and language are global across pages:
+	- Themes: Light / Dark
+	- Languages: English / Spanish
+- Workspace state is persisted per level in `localStorage`.
 
-## Tooling
+## 2. Stack and Tooling
 
-The application uses many of the same tools that the Blockly team uses to develop Blockly itself. Following is a brief overview, and you can read more about them on our [developer site](https://developers.google.com/blockly/guides/contribute/get-started/development_tools).
+- JavaScript (ES modules)
+- [Blockly](https://developers.google.com/blockly)
+- [p5.js](https://p5js.org/)
+- Webpack + webpack-dev-server
+- pnpm package manager
 
-- Structure: The application is built as an npm package. You can use npm to manage the dependencies of the application.
-- Modules: ES6 modules to handle imports to/exports from other files.
-- Building/bundling: Webpack to build the source code and bundle it into one file for serving.
-- Development server: webpack-dev-server to run locally while in development.
-- Testing: Mocha to run unit tests.
-- Linting: Eslint to lint the code and ensure it conforms with a standard style.
-- UI Framework: Does not use a framework. For more complex applications, you may wish to integrate a UI framework like React or Angular.
+## 3. Quick Start (0 to Running)
 
-You can disable, reconfigure, or replace any of these tools at any time, but they are preconfigured to get you started developing your Blockly application quickly.
+### Prerequisites
 
-## Structure
+- Node.js 18+ recommended
+- pnpm installed globally
 
-- `package.json` contains basic information about the app. This is where the scripts to run, build, etc. are listed.
-- `package-lock.json` is used by npm to manage dependencies
-- `webpack.config.js` is the configuration for webpack. This handles bundling the application and running our development server.
-- `src/` contains the rest of the source code.
-- `dist/` contains the packaged output (that you could host on a server, for example). This is ignored by git and will only appear after you run `npm run build` or `npm run start`.
+```bash
+npm install -g pnpm
+```
 
-### Source Code
+### Install dependencies
 
-- `index.html` contains the skeleton HTML for the page. This file is modified during the build to import the bundled source code output by webpack.
-- `index.js` is the entry point of the app. It configures Blockly and sets up the page to show the blocks, the generated code, and the output of running the code in JavaScript.
-- `serialization.js` has code to save and load the workspace using the browser's local storage. This is how your workspace is saved even after refreshing or leaving the page. You could replace this with code that saves the user's data to a cloud database instead.
-- `toolbox.js` contains the toolbox definition for the app. The current toolbox contains nearly every block that Blockly provides out of the box. You probably want to replace this definition with your own toolbox that uses your custom blocks and only includes the default blocks that are relevant to your application.
-- `blocks/text.js` has code for a custom text block, just as an example of creating your own blocks. You probably want to delete this block, and add your own blocks in this directory.
-- `generators/javascript.js` contains the JavaScript generator for the custom text block. You'll need to include block generators for any custom blocks you create, in whatever programming language(s) your application will use.
+```bash
+pnpm install
+```
 
-## Serving
+### Start development server
 
-To run your app locally, run `npm run start` to run the development server. This mode generates source maps and ingests the source maps created by Blockly, so that you can debug using unminified code.
+```bash
+pnpm start
+```
 
-To deploy your app so that others can use it, run `npm run build` to run a production build. This will bundle your code and minify it to reduce its size. You can then host the contents of the `dist` directory on a web server of your choosing. If you're just getting started, try using [GitHub Pages](https://pages.github.com/).
+- Web app runs at `http://localhost:8080`
+- Dev mode includes source maps for easier debugging.
+
+### Build production bundle
+
+```bash
+pnpm build
+```
+
+- Output is generated in `dist/`.
+
+## 4. Scripts
+
+From `package.json`:
+
+- `pnpm start`: run webpack dev server (`development` mode)
+- `pnpm build`: production build (`production` mode)
+- `pnpm test`: placeholder (currently no test suite configured)
+
+## 5. Project Structure
+
+```text
+src/
+	pages/
+		home/
+			index.html
+			index.js
+			styles.css
+		drawing/
+			index.html
+			index.js
+			styles.css
+	features/
+		board/
+			board.js
+			constants.js
+	shared/
+		preferences.js
+		serialization.js
+		toolbox.js
+		translations.js
+	blocks/
+		custom_blocks.js
+		text.js
+	generators/
+		javascript.js
+webpack.config.js
+```
+
+### Folder responsibilities
+
+- `pages/`: page entrypoints and page-specific UI/styles.
+- `features/`: reusable domain features (board logic lives here).
+- `shared/`: app-wide concerns (i18n, preferences, toolbox, persistence).
+- `blocks/` and `generators/`: Blockly custom block definitions + JS generation logic.
+
+## 6. Runtime Flow
+
+### Home page (`src/pages/home`)
+
+1. Renders level cards (`1..12` by default).
+2. Reads global language/theme preferences.
+3. Clicking a level routes to `drawing.html?level=<N>`.
+
+### Drawing page (`src/pages/drawing`)
+
+1. Reads selected level from URL query (`level`).
+2. Initializes Blockly + custom blocks + toolbox.
+3. Initializes p5 drawing board.
+4. Saves/loads workspace using a per-level storage key:
+	 - `blockyAndP5:level:<N>`
+
+## 7. Theming and i18n
+
+Shared files:
+
+- `src/shared/preferences.js`
+- `src/shared/translations.js`
+
+How it works:
+
+- Theme/language values are stored in `localStorage`.
+- Both pages read/write the same keys, so preferences stay synchronized.
+- Theme is applied by setting `data-theme` on `<html>`.
+- Copy text is centralized in `translations` object.
+
+## 8. Blockly Architecture
+
+### Custom blocks
+
+- Defined in:
+	- `src/blocks/custom_blocks.js`
+	- `src/blocks/text.js`
+
+### JS generators
+
+- Defined in:
+	- `src/generators/javascript.js`
+
+### Toolbox
+
+- Configured in:
+	- `src/shared/toolbox.js`
+- Supports language-aware category labels.
+
+## 9. Board (p5.js) Architecture
+
+- Main board logic: `src/features/board/board.js`
+- Board constants: `src/features/board/constants.js`
+
+Board module exports actions used by generated Blockly code, for example:
+
+- `paint(color)`
+- `moveUp()`, `moveDown()`, `moveLeft()`, `moveRight()`
+- `setStartingRow()`, `setStartingCol()`
+
+These functions are exposed on `window` by the drawing page entry so block-generated JS can call them.
+
+## 10. Webpack Setup
+
+`webpack.config.js` defines a multi-page build:
+
+- Entry `main` -> `src/pages/home/index.js`
+- Entry `drawing` -> `src/pages/drawing/index.js`
+- HTML templates are generated through `HtmlWebpackPlugin`
+
+Production mode:
+
+- Uses hashed filenames for caching (`[contenthash]`)
+- Uses split chunks + runtime chunk
+- Uses realistic performance budgets for Blockly+p5 bundle sizes
+
+## 11. How to Add a New Level
+
+Current level list is static (`DEFAULT_LEVEL_COUNT` in `src/pages/home/index.js`).
+
+To add levels now:
+
+1. Increase `DEFAULT_LEVEL_COUNT`.
+2. Optionally create metadata mapping (name, difficulty, locked flag).
+
+For future DB integration:
+
+1. Replace static rendering with API-fetched level list.
+2. Keep `drawing.html?level=<id>` routing contract.
+3. Map server level IDs to workspace persistence/storage logic.
+
+## 12. How to Add More Languages
+
+1. Add a new language key in `src/shared/translations.js`.
+2. Update language constants and selectors in `src/shared/preferences.js` and UI handlers.
+3. Add language option in both page templates.
+
+## 13. Troubleshooting
+
+### Dev server shows chunk filename conflicts
+
+- This is resolved by using entry-based filenames (`[name].js`) in development output.
+
+### Theme text looks wrong in dark mode
+
+- Check the page CSS variable bindings (`--text-color` / `--home-text`).
+- Ensure controls/cards explicitly set `color` (button defaults can differ by browser).
+
+### Blockly workspace not restoring
+
+- Confirm current URL has the intended `?level=` value.
+- Inspect `localStorage` keys prefixed with `blockyAndP5:level:`.
+
+## 14. Next Improvements (Suggested)
+
+- Add automated tests (unit tests for `shared` and `board` logic).
+- Replace `eval` execution with a safer interpreter strategy.
+- Add level metadata model and fetch from backend.
+- Add linting + formatting scripts.
+
+## 15. License
+
+This project is licensed under Apache-2.0 (see `package.json`).

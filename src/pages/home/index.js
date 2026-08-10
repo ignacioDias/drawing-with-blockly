@@ -1,4 +1,4 @@
-import './levels.css';
+import './styles.css';
 import {
   LANGUAGES,
   THEMES,
@@ -7,8 +7,8 @@ import {
   readTheme,
   writeLanguage,
   writeTheme,
-} from './preferences';
-import {translations} from './translations';
+} from '../../shared/preferences';
+import {translations} from '../../shared/translations';
 
 const DEFAULT_LEVEL_COUNT = 12;
 const levelGrid = document.getElementById('level-grid');

@@ -15,9 +15,9 @@ listed here.
 export const getToolbox = (language = 'en') => {
   const labels = language === 'es'
     ? {
-        logic: 'Lógica',
+        logic: 'Logica',
         loops: 'Repeticiones',
-        math: 'Matemáticas',
+        math: 'Matematicas',
         variables: 'Variables',
         functions: 'Funciones',
         actions: 'Acciones',
