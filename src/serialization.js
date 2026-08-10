@@ -6,13 +6,14 @@
 
 import * as Blockly from 'blockly/core';
 
-const storageKey = 'blockyAndP5';
+const DEFAULT_STORAGE_KEY = 'blockyAndP5';
 
 /**
  * Saves the state of the workspace to browser's local storage.
  * @param {Blockly.Workspace} workspace Blockly workspace to save.
+ * @param {string} [storageKey=DEFAULT_STORAGE_KEY] Local storage key.
  */
-export const save = function (workspace) {
+export const save = function (workspace, storageKey = DEFAULT_STORAGE_KEY) {
   const data = Blockly.serialization.workspaces.save(workspace);
   window.localStorage?.setItem(storageKey, JSON.stringify(data));
 };
@@ -20,8 +21,9 @@ export const save = function (workspace) {
 /**
  * Loads saved state from local storage into the given workspace.
  * @param {Blockly.Workspace} workspace Blockly workspace to load into.
+ * @param {string} [storageKey=DEFAULT_STORAGE_KEY] Local storage key.
  */
-export const load = function (workspace) {
+export const load = function (workspace, storageKey = DEFAULT_STORAGE_KEY) {
   const data = window.localStorage?.getItem(storageKey);
   if (!data) return;
 

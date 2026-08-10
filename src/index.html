@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Blockly Sample App</title>
+    <title>Choose a Level</title>
   </head>
   <body>
     <div class="top-controls" role="toolbar" aria-label="App controls">
@@ -10,20 +10,17 @@
         <span>Language</span>
         <select id="language-select">
           <option value="en">English</option>
-          <option value="es">Español</option>
+          <option value="es">Spanish</option>
         </select>
       </label>
-      <button id="theme-toggle" type="button" aria-pressed="false">🌙 Dark mode</button>
+      <button id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
     </div>
-    <div id="pageContainer">
-      <div id="page-title">✨ Make a picture with blocks ✨</div>
-      <div id="outputPane">
-        <pre id="generatedCode"><code></code></pre>
-        <div id="output"></div>
-      </div>
-      <div id="blocklyDiv"></div>
-      <button id="run-button">Start drawing!</button>
-      <div id="board-container"></div>
-    </div>
+    <main class="home-shell">
+      <header class="home-header">
+        <h1 id="home-title">Choose a Drawing Level</h1>
+        <p id="home-subtitle">Select a level and open the Blockly workspace.</p>
+      </header>
+      <section id="level-grid" class="level-grid" aria-label="Available levels"></section>
+    </main>
   </body>
 </html>

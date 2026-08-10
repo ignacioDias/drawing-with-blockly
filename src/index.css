@@ -50,6 +50,14 @@ body {
   transition: background 0.25s ease, color 0.25s ease;
 }
 
+a {
+  color: inherit;
+}
+
+a:visited {
+  color: inherit;
+}
+
 pre,
 code {
   overflow: auto;
@@ -75,6 +83,7 @@ code {
 
 .control-group span {
   font-weight: 700;
+  color: var(--text-color);
 }
 
 .control-group select,
@@ -105,6 +114,30 @@ html[data-theme="dark"] .control-group select {
   box-shadow: 0 6px 16px var(--shadow-color);
   cursor: pointer;
   font-weight: 700;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  background: var(--controls-bg);
+  border: 2px solid var(--controls-border);
+  box-shadow: 0 6px 16px var(--shadow-color);
+  color: var(--text-color);
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.back-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px var(--shadow-color);
+}
+
+.back-link:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 8px var(--shadow-color);
 }
 
 #pageContainer {

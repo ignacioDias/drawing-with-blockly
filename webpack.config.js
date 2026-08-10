@@ -3,10 +3,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 // Base config that applies to either development or production mode.
 const config = {
-  entry: './src/index.js',
+  entry: {
+    main: './src/index.js',
+    drawing: './src/drawing.js',
+  },
   output: {
     // Compile the source files into a bundle.
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
@@ -24,11 +27,17 @@ const config = {
     ],
   },
   plugins: [
-    // Generate the HTML index page based on our template.
-    // This will output the same index page with the bundle we
-    // created above added in a script tag.
+    // Generate the levels home page.
     new HtmlWebpackPlugin({
       template: 'src/index.html',
+      filename: 'index.html',
+      chunks: ['runtime', 'main'],
+    }),
+    // Generate the drawing workspace page.
+    new HtmlWebpackPlugin({
+      template: 'src/drawing.html',
+      filename: 'drawing.html',
+      chunks: ['runtime', 'drawing'],
     }),
   ],
 };
