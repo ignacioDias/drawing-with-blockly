@@ -213,13 +213,4 @@ For future DB integration:
 - Confirm current URL has the intended `?level=` value.
 - Inspect `localStorage` keys prefixed with `blockyAndP5:level:`.
 
-## 14. Next Improvements (Suggested)
 
-- Add automated tests (unit tests for `shared` and `board` logic).
-- Replace `eval` execution with a safer interpreter strategy.
-- Add level metadata model and fetch from backend.
-- Add linting + formatting scripts.
-
-## 15. License
-
-This project is licensed under Apache-2.0 (see `package.json`).
