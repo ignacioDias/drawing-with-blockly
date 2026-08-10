@@ -1,8 +1,15 @@
 import p5 from 'p5';
 
-const COLS = 20;
-const ROWS = 20;
-const CELL_SIZE = 20;
+import {
+    BOARD_CELL_SIZE,
+    BOARD_COLS,
+    BOARD_ROWS,
+    CURRENT_CELL_HIGHLIGHT_COLOR,
+    EMPTY_CELL_COLOR,
+    GRID_STROKE_COLOR,
+    GRID_STROKE_WEIGHT,
+    HIGHLIGHT_STROKE_WEIGHT,
+} from './constants';
 
 let board = [];
 let currentCol = -1;
@@ -15,7 +22,7 @@ export function setup() {
     }
     p = new p5((sk) => {
         sk.setup = () => {
-            sk.createCanvas(COLS * CELL_SIZE, ROWS * CELL_SIZE).parent('board-container');
+            sk.createCanvas(BOARD_COLS * BOARD_CELL_SIZE, BOARD_ROWS * BOARD_CELL_SIZE).parent('board-container');
             sk.noLoop();
             initBoard();
             drawBoard(sk);
@@ -24,21 +31,21 @@ export function setup() {
 }
 
 function initBoard() {
-    for (let row = 0; row < ROWS; row++) {
+    for (let row = 0; row < BOARD_ROWS; row++) {
         board[row] = [];
-        for (let col = 0; col < COLS; col++) {
-            board[row][col] = '#ffffff';
+        for (let col = 0; col < BOARD_COLS; col++) {
+            board[row][col] = EMPTY_CELL_COLOR;
         }
     }
 }
 
 export function drawBoard(sk = p) {
-    for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
+    for (let row = 0; row < BOARD_ROWS; row++) {
+        for (let col = 0; col < BOARD_COLS; col++) {
             sk.fill(board[row][col]);
-            sk.stroke(160);
-            sk.strokeWeight(0.5);
-            sk.rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            sk.stroke(GRID_STROKE_COLOR);
+            sk.strokeWeight(GRID_STROKE_WEIGHT);
+            sk.rect(col * BOARD_CELL_SIZE, row * BOARD_CELL_SIZE, BOARD_CELL_SIZE, BOARD_CELL_SIZE);
         }
     }
     highlightCurrentCell(sk);
@@ -46,7 +53,7 @@ export function drawBoard(sk = p) {
 
 
 export function setStartingCol(col) {
-    if(col >= 0 && col < COLS) {
+    if(col >= 0 && col < BOARD_COLS) {
         currentCol = col;
         drawBoard();
         highlightCurrentCell();
@@ -54,7 +61,7 @@ export function setStartingCol(col) {
 }
 
 export function setStartingRow(row) {
-    if(row >= 0 && row < ROWS) {
+    if(row >= 0 && row < BOARD_ROWS) {
         currentRow = row;
         drawBoard();
         highlightCurrentCell();
@@ -73,7 +80,7 @@ export function paint(color) {
 
 export function eraseColor() {
     if (isValidPosition(currentCol, currentRow)) {
-        board[currentRow][currentCol] = "#ffffff";
+        board[currentRow][currentCol] = EMPTY_CELL_COLOR;
         drawBoard();
         highlightCurrentCell();
     }
@@ -111,20 +118,20 @@ function hasCurrentPosition() {
 }
 
 function isValidPosition(col, row) {
-    return col >= 0 && col < COLS && row >= 0 && row < ROWS;
+    return col >= 0 && col < BOARD_COLS && row >= 0 && row < BOARD_ROWS;
 }
 
 function highlightCurrentCell(sk = p) {
     if (!isValidPosition(currentCol, currentRow)) return;
     sk.noFill();
-    sk.stroke('red');
-    sk.strokeWeight(2);
-    sk.rect(currentCol * CELL_SIZE, currentRow * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    sk.stroke(CURRENT_CELL_HIGHLIGHT_COLOR);
+    sk.strokeWeight(HIGHLIGHT_STROKE_WEIGHT);
+    sk.rect(currentCol * BOARD_CELL_SIZE, currentRow * BOARD_CELL_SIZE, BOARD_CELL_SIZE, BOARD_CELL_SIZE);
 }
 
 export function isCurrentCellPainted() {
     if (!isValidPosition(currentCol, currentRow)) return false;
-    return board[currentRow][currentCol] != '#ffffff';
+    return board[currentRow][currentCol] != EMPTY_CELL_COLOR;
 }
 
 export function getCurrentRow() {

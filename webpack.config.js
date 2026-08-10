@@ -55,5 +55,23 @@ module.exports = (env, argv) => {
     // It can't find source maps for some Closure modules and that is expected
     config.ignoreWarnings = [/Failed to parse source map/];
   }
+
+  if (argv.mode === 'production') {
+    // Split code for better browser caching and smaller initial bootstrap.
+    config.output.filename = '[name].[contenthash].js';
+    config.optimization = {
+      splitChunks: {
+        chunks: 'all',
+      },
+      runtimeChunk: 'single',
+    };
+
+    // Blockly and p5 are large by design, so use realistic warning budgets.
+    config.performance = {
+      hints: 'warning',
+      maxAssetSize: 2 * 1024 * 1024,
+      maxEntrypointSize: 2 * 1024 * 1024,
+    };
+  }
   return config;
 };
