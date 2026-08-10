@@ -24,6 +24,7 @@ Available scripts:
 - `pnpm db:up`: start PostgreSQL
 - `pnpm db:down`: stop PostgreSQL without deleting its data
 - `pnpm db:logs`: follow PostgreSQL logs
+- `pnpm test`: run API integration tests when `TEST_DATABASE_URL` is configured
 
 ## Database
 
@@ -92,6 +93,19 @@ contain `rows: 20`, `columns: 20`, and a `cells` array.
 The API uses parameterized SQL, scrypt password hashes, SHA-256 session-token
 hashes, and secure `HttpOnly` cookies in production. Expired or revoked
 sessions cannot authenticate requests.
+
+## Tests
+
+Tests use a real PostgreSQL database and must never use the development
+database. Create a separate database, apply the same initialization scripts,
+set `TEST_DATABASE_URL` in `.env`, and run:
+
+```bash
+pnpm test
+```
+
+Without `TEST_DATABASE_URL`, the integration suite is skipped rather than
+connecting to an unintended database.
 
 The `users` table has a unique username, a `hashed_password`, and a role
 restricted to `admin` or `normal`. Store only password hashes; authentication

@@ -224,4 +224,8 @@ app.use((error, req, res, next) => {
   return sendError(res, 500, 'Internal server error');
 });
 
-app.listen(port, () => console.log(`API listening on port ${port}`));
+if (require.main === module) {
+  app.listen(port, () => console.log(`API listening on port ${port}`));
+}
+
+module.exports = {app, pool};
