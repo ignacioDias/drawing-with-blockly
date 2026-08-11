@@ -9,10 +9,13 @@ import {
   writeTheme,
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
+import {getLevels} from '../../shared/api';
+import {setupAuthLink} from '../../shared/auth-navigation';
 
-const DEFAULT_LEVEL_COUNT = 12;
 const levelGrid = document.getElementById('level-grid');
+const levelStatus = document.getElementById('level-status');
 const themeToggle = document.getElementById('theme-toggle');
+const authLink = document.getElementById('auth-link');
 const languageSelect = document.getElementById('language-select');
 const languageLabel = document.querySelector('.control-group span');
 const homeTitle = document.getElementById('home-title');
@@ -20,19 +23,27 @@ const homeSubtitle = document.getElementById('home-subtitle');
 
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
+let levels = [];
+const renderAuthLink = setupAuthLink(authLink, () => translations[currentLanguage].common);
 
-const createLevelCard = (levelId, text) => {
+const localized = (value, language) => value?.[language] || value?.en || '';
+
+const createLevelCard = (level, text) => {
   const card = document.createElement('button');
   card.type = 'button';
   card.className = 'level-card';
-  card.setAttribute('aria-label', `Open level ${levelId}`);
-  card.innerHTML = `
-    <span class="level-badge">${text.levelLabel} ${levelId}</span>
-    <span class="level-caption">${text.openWorkspace}</span>
-  `;
+  card.setAttribute('aria-label', `${text.levelLabel} ${level.sort_order}`);
+
+  const badge = document.createElement('span');
+  badge.className = 'level-badge';
+  badge.textContent = `${text.levelLabel} ${level.sort_order}`;
+  const caption = document.createElement('span');
+  caption.className = 'level-caption';
+  caption.textContent = localized(level.title, currentLanguage) || text.openWorkspace;
+  card.append(badge, caption);
 
   card.addEventListener('click', () => {
-    window.location.href = `drawing.html?level=${encodeURIComponent(String(levelId))}`;
+    window.location.href = `drawing.html?level=${encodeURIComponent(String(level.id))}`;
   });
 
   return card;
@@ -41,9 +52,7 @@ const createLevelCard = (levelId, text) => {
 const renderLevels = () => {
   levelGrid.innerHTML = '';
   const text = translations[currentLanguage].home;
-  for (let levelId = 1; levelId <= DEFAULT_LEVEL_COUNT; levelId++) {
-    levelGrid.appendChild(createLevelCard(levelId, text));
-  }
+  levels.forEach((level) => levelGrid.appendChild(createLevelCard(level, text)));
 };
 
 const applyTheme = () => {
@@ -63,6 +72,8 @@ const applyLanguage = () => {
   languageSelect.value = currentLanguage;
   homeTitle.textContent = copy.home.title;
   homeSubtitle.textContent = copy.home.subtitle;
+  levelStatus.textContent = levels.length ? '' : copy.home.loading;
+  renderAuthLink();
   renderLevels();
   applyTheme();
 };
@@ -80,3 +91,12 @@ languageSelect.addEventListener('change', () => {
 });
 
 applyLanguage();
+
+getLevels()
+  .then((loadedLevels) => {
+    levels = loadedLevels;
+    applyLanguage();
+  })
+  .catch(() => {
+    levelStatus.textContent = translations[currentLanguage].home.loadError;
+  });

@@ -131,6 +131,21 @@ html[data-theme="dark"] #theme-toggle {
   transform: translateY(1px);
 }
 
+.auth-link {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid var(--chrome-indigo);
+  border-radius: 2px;
+  color: var(--on-primary);
+  background: var(--signal);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
 .home-shell {
   width: min(860px, calc(100vw - 24px));
   margin: 14px auto 24px;
@@ -175,6 +190,14 @@ html[data-theme="dark"] #theme-toggle {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(186px, 1fr));
   gap: 8px;
+}
+
+.level-status {
+  margin: 12px 0 0;
+  color: var(--surface);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .level-card {

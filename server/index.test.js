@@ -33,6 +33,22 @@ if (!testDatabaseUrl) {
     baseUrl = `http://127.0.0.1:${server.address().port}`;
   });
 
+  test('lists published levels and hides draft levels', async () => {
+    let response = await request('/api/levels');
+    assert.equal(response.status, 200);
+    const levels = (await json(response)).levels;
+    assert.ok(levels.length > 0);
+    assert.deepEqual(levels.map((level) => level.id), [1, 2, 3]);
+    assert.ok(levels.every((level) => level.sort_order <= 3));
+
+    response = await request('/api/levels/1');
+    assert.equal(response.status, 200);
+    assert.equal((await json(response)).level.id, 1);
+
+    response = await request('/api/levels/4');
+    assert.equal(response.status, 404);
+  });
+
   after(async () => {
     if (levelId) await pool.query('DELETE FROM levels WHERE id = $1', [levelId]);
     await pool.query('DELETE FROM users WHERE username = $1', [username]);

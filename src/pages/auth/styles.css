@@ -1,0 +1,132 @@
+:root {
+  --canvas: #7a8aba;
+  --canvas-soft: #9fbee7;
+  --chrome-indigo: #3d4f97;
+  --surface: #ffffff;
+  --carbon: #21242e;
+  --ink: #21242e;
+  --signal: #f68d1f;
+  --hairline: #5a5f8c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: grid;
+  min-height: 100vh;
+  margin: 0;
+  place-items: center;
+  padding: 20px;
+  color: var(--ink);
+  background: linear-gradient(160deg, #5e6f9e 0%, var(--canvas) 100%);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.auth-card {
+  width: min(100%, 420px);
+  padding: 28px;
+  border: 2px solid var(--chrome-indigo);
+  background: var(--canvas-soft);
+  box-shadow: 0 12px 28px rgba(33, 36, 46, 0.34), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+
+.auth-language {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-bottom: 18px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auth-language select {
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.auth-card h1 {
+  margin: 0 0 8px;
+  color: var(--surface);
+  font-size: 30px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 var(--chrome-indigo);
+}
+
+.auth-card p {
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.auth-form input {
+  min-height: 38px;
+  padding: 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  color: var(--ink);
+  background: var(--surface);
+  font: inherit;
+}
+
+.auth-button,
+.auth-link {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border: 1px solid #b15a00;
+  border-radius: 2px;
+  color: #ffffff;
+  background: linear-gradient(180deg, #ffb74f 0%, var(--signal) 62%, #d36700 100%);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+  font-size: 13px;
+}
+
+.auth-links a {
+  color: var(--ink);
+}
+
+.auth-status {
+  min-height: 20px;
+  margin: 14px 0 0;
+  color: #8f1111;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 12px;
+  }
+
+  .auth-card {
+    padding: 22px 18px;
+  }
+}

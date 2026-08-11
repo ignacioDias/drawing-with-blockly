@@ -6,6 +6,9 @@ const config = {
   entry: {
     main: './src/pages/home/index.js',
     drawing: './src/pages/drawing/index.js',
+    login: './src/pages/login/index.js',
+    register: './src/pages/register/index.js',
+    logout: './src/pages/logout/index.js',
   },
   output: {
     // Compile the source files into a bundle.
@@ -16,6 +19,9 @@ const config = {
   // Enable webpack-dev-server to get hot refresh of the app.
   devServer: {
     static: './build',
+    proxy: {
+      '/api': 'http://localhost:3001',
+    },
   },
   module: {
     rules: [
@@ -38,6 +44,21 @@ const config = {
       template: 'src/pages/drawing/index.html',
       filename: 'drawing.html',
       chunks: ['runtime', 'drawing'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/pages/login/index.html',
+      filename: 'login.html',
+      chunks: ['runtime', 'login'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/pages/register/index.html',
+      filename: 'register.html',
+      chunks: ['runtime', 'register'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/pages/logout/index.html',
+      filename: 'logout.html',
+      chunks: ['runtime', 'logout'],
     }),
   ],
 };

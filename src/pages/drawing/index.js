@@ -21,10 +21,15 @@ import {
   writeTheme,
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
+import {getLevel} from '../../shared/api';
+import {setupAuthLink} from '../../shared/auth-navigation';
 import './styles.css';
 
 const levelParams = new URLSearchParams(window.location.search);
 const currentLevel = levelParams.get('level') || '1';
+const levelStatus = document.createElement('p');
+levelStatus.id = 'level-status';
+document.getElementById('pageContainer').prepend(levelStatus);
 
 // Register the blocks and generator with Blockly
 Blockly.common.defineBlocks(blocks);
@@ -41,9 +46,12 @@ const languageSelect = document.getElementById('language-select');
 const pageTitle = document.getElementById('page-title');
 const languageLabel = document.querySelector('.control-group span');
 const backLink = document.querySelector('.back-link');
+const authLink = document.getElementById('auth-link');
+runButton.disabled = true;
 
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
+const renderAuthLink = setupAuthLink(authLink, () => translations[currentLanguage].common);
 
 const applyTheme = () => {
   applyThemeToDocument(currentTheme);
@@ -63,12 +71,17 @@ const applyLanguage = () => {
   languageSelect.querySelector('option[value="es"]').textContent = copy.common.languageOptionEs;
   languageSelect.value = currentLanguage;
   backLink.textContent = copy.common.backToLevels;
+  renderAuthLink();
 
   if (typeof ws.updateToolbox === 'function') {
     ws.updateToolbox(getToolbox(currentLanguage));
   }
 
   applyTheme();
+};
+
+const setLevelStatus = (message) => {
+  levelStatus.textContent = message;
 };
 
 const ws = Blockly.inject(blocklyDiv, {toolbox: getToolbox(currentLanguage)});
@@ -86,7 +99,7 @@ const processCode = () => {
 // Load the initial state from storage and run the code.
 load(ws, workspaceStorageKey);
 processCode();
-Board.setup();
+setLevelStatus(translations[currentLanguage].drawing.loading);
 
 // Every time the workspace changes state, save the changes to storage.
 ws.addChangeListener((e) => {
@@ -131,6 +144,21 @@ languageSelect.addEventListener('change', () => {
 
 applyLanguage();
 
+getLevel(currentLevel)
+  .then((level) => {
+    pageTitle.textContent = `${localized(level.title, currentLanguage)} - ${copyLevelLabel(currentLanguage)} ${level.sort_order}`;
+    Board.setup({
+      startingBoard: level.starting_board,
+      startingRow: level.starting_row,
+      startingColumn: level.starting_column,
+    });
+    runButton.disabled = false;
+    setLevelStatus('');
+  })
+  .catch(() => {
+    setLevelStatus(translations[currentLanguage].drawing.loadError);
+  });
+
 window.paint = Board.paint;
 window.eraseColor = Board.eraseColor;
 window.getCurrentColor = Board.getCurrentColor;
@@ -144,3 +172,11 @@ window.setStartingCol = Board.setStartingCol;
 window.getCurrentColumn = Board.getCurrentColumn;
 window.getCurrentRow = Board.getCurrentRow;
 window.isCurrentCellPainted = Board.isCurrentCellPainted;
+
+function localized(value, language) {
+  return value?.[language] || value?.en || '';
+}
+
+function copyLevelLabel(language) {
+  return translations[language].drawing.levelLabel;
+}

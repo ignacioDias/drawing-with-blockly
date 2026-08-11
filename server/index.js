@@ -147,6 +147,41 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json({user: {id: req.user.id, username: req.user.username, role: req.user.role}});
 });
 
+app.get('/api/levels', async (req, res, next) => {
+  try {
+    const {rows} = await pool.query(
+      `SELECT id, slug, title, description, difficulty, sort_order,
+              starting_board, target_board, starting_row, starting_column,
+              validation_config
+       FROM levels
+       WHERE is_published
+       ORDER BY sort_order`,
+    );
+    return res.json({levels: rows});
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get('/api/levels/:id', async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return sendError(res, 400, 'Invalid level id');
+    const {rows} = await pool.query(
+      `SELECT id, slug, title, description, difficulty, sort_order,
+              starting_board, target_board, starting_row, starting_column,
+              validation_config
+       FROM levels
+       WHERE id = $1 AND is_published`,
+      [id],
+    );
+    if (!rows[0]) return sendError(res, 404, 'Level not found');
+    return res.json({level: rows[0]});
+  } catch (error) {
+    return next(error);
+  }
+});
+
 const boardIsValid = (board) => (
   board && board.rows === 20 && board.columns === 20 && Array.isArray(board.cells)
 );

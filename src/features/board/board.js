@@ -16,7 +16,7 @@ let currentCol = -1;
 let currentRow = -1;
 let p; // p5 instance
 
-export function setup() {
+export function setup({startingBoard, startingRow = -1, startingColumn = -1} = {}) {
     if (p) {
         p.remove(); // Remove previous canvas if exists
     }
@@ -24,17 +24,25 @@ export function setup() {
         sk.setup = () => {
             sk.createCanvas(BOARD_COLS * BOARD_CELL_SIZE, BOARD_ROWS * BOARD_CELL_SIZE).parent('board-container');
             sk.noLoop();
-            initBoard();
+            initBoard(startingBoard);
+            currentRow = startingRow;
+            currentCol = startingColumn;
             drawBoard(sk);
         };
     });
 }
 
-function initBoard() {
+function initBoard(startingBoard) {
     for (let row = 0; row < BOARD_ROWS; row++) {
         board[row] = [];
         for (let col = 0; col < BOARD_COLS; col++) {
             board[row][col] = EMPTY_CELL_COLOR;
+        }
+    }
+
+    for (const cell of startingBoard?.cells || []) {
+        if (isValidPosition(cell.column, cell.row) && typeof cell.color === 'string') {
+            board[cell.row][cell.column] = cell.color;
         }
     }
 }
