@@ -15,6 +15,7 @@ let board = [];
 let currentCol = -1;
 let currentRow = -1;
 let p; // p5 instance
+let targetP; // p5 instance for the read-only target board
 
 export function setup({startingBoard, startingRow = -1, startingColumn = -1} = {}) {
     if (p) {
@@ -32,6 +33,19 @@ export function setup({startingBoard, startingRow = -1, startingColumn = -1} = {
     });
 }
 
+export function setupTarget({targetBoard} = {}) {
+    if (targetP) {
+        targetP.remove();
+    }
+    targetP = new p5((sk) => {
+        sk.setup = () => {
+            sk.createCanvas(BOARD_COLS * BOARD_CELL_SIZE, BOARD_ROWS * BOARD_CELL_SIZE).parent('target-board-container');
+            sk.noLoop();
+            drawStaticBoard(sk, targetBoard);
+        };
+    });
+}
+
 function initBoard(startingBoard) {
     for (let row = 0; row < BOARD_ROWS; row++) {
         board[row] = [];
@@ -43,6 +57,24 @@ function initBoard(startingBoard) {
     for (const cell of startingBoard?.cells || []) {
         if (isValidPosition(cell.column, cell.row) && typeof cell.color === 'string') {
             board[cell.row][cell.column] = cell.color;
+        }
+    }
+}
+
+function drawStaticBoard(sk, boardData) {
+    const cells = boardData?.cells || [];
+    const colors = new Map(
+        cells
+            .filter((cell) => isValidPosition(cell.column, cell.row) && typeof cell.color === 'string')
+            .map((cell) => [`${cell.row}:${cell.column}`, cell.color]),
+    );
+
+    for (let row = 0; row < BOARD_ROWS; row++) {
+        for (let col = 0; col < BOARD_COLS; col++) {
+            sk.fill(colors.get(`${row}:${col}`) || EMPTY_CELL_COLOR);
+            sk.stroke(GRID_STROKE_COLOR);
+            sk.strokeWeight(GRID_STROKE_WEIGHT);
+            sk.rect(col * BOARD_CELL_SIZE, row * BOARD_CELL_SIZE, BOARD_CELL_SIZE, BOARD_CELL_SIZE);
         }
     }
 }

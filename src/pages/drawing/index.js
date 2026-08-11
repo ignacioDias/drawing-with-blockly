@@ -47,6 +47,10 @@ const pageTitle = document.getElementById('page-title');
 const languageLabel = document.querySelector('.control-group span');
 const backLink = document.querySelector('.back-link');
 const authLink = document.getElementById('auth-link');
+const currentBoardLabel = document.getElementById('current-board-label');
+const targetBoardLabel = document.getElementById('target-board-label');
+const currentBoardSubtitle = document.getElementById('current-board-subtitle');
+const targetBoardSubtitle = document.getElementById('target-board-subtitle');
 runButton.disabled = true;
 
 let currentLanguage = readLanguage();
@@ -71,6 +75,10 @@ const applyLanguage = () => {
   languageSelect.querySelector('option[value="es"]').textContent = copy.common.languageOptionEs;
   languageSelect.value = currentLanguage;
   backLink.textContent = copy.common.backToLevels;
+  currentBoardLabel.textContent = copy.drawing.currentBoard;
+  targetBoardLabel.textContent = copy.drawing.targetBoard;
+  currentBoardSubtitle.textContent = copy.drawing.currentBoardSubtitle;
+  targetBoardSubtitle.textContent = copy.drawing.targetBoardSubtitle;
   renderAuthLink();
 
   if (typeof ws.updateToolbox === 'function') {
@@ -152,6 +160,7 @@ getLevel(currentLevel)
       startingRow: level.starting_row,
       startingColumn: level.starting_column,
     });
+    Board.setupTarget({targetBoard: level.target_board});
     runButton.disabled = false;
     setLevelStatus('');
   })

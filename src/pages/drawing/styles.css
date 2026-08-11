@@ -191,8 +191,8 @@ html[data-theme="dark"] #theme-toggle {
   grid-template-columns: 280px minmax(340px, 1fr) 424px;
   grid-template-areas:
     "title title title"
-    "output blockly board"
-    "run blockly board";
+    "output blockly boards"
+    "run blockly boards";
   align-items: start;
   justify-content: stretch;
   gap: 12px;
@@ -275,9 +275,52 @@ html[data-theme="dark"] #blocklyDiv {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)), #3a446e;
 }
 
-#board-container {
-  grid-area: board;
+#boards-container {
+  grid-area: boards;
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 424px;
+}
+
+.board-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.board-panel h2 {
+  align-self: stretch;
+  display: block;
+  min-height: 24px;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--chrome-indigo);
+  border-radius: 2px;
+  background: var(--carbon);
+  color: var(--on-primary);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  line-height: 14px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.board-panel p {
+  display: block;
+  min-height: 16px;
+  margin: 0;
+  padding: 0 4px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+#board-container,
+#target-board-container {
   align-items: center;
   justify-content: center;
   width: 424px;
@@ -289,6 +332,11 @@ html[data-theme="dark"] #blocklyDiv {
   border-radius: 6px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(61, 79, 151, 0.3);
   margin: 0;
+}
+
+#board-container,
+#target-board-container {
+  display: flex;
 }
 
 #generatedCode {
@@ -359,18 +407,20 @@ html[data-theme="dark"] #blocklyDiv {
       "title title"
       "output blockly"
       "run run"
-      "board board";
+      "boards boards";
     padding: 58px 8px 10px;
     clip-path: none;
   }
 
   #outputPane,
   #blocklyDiv,
-  #board-container {
+  #boards-container,
+  #board-container,
+  #target-board-container {
     width: 100%;
   }
 
-  #board-container {
+  #boards-container {
     justify-self: center;
     max-width: 424px;
   }
@@ -393,7 +443,7 @@ html[data-theme="dark"] #blocklyDiv {
       "output"
       "blockly"
       "run"
-      "board";
+      "boards";
   }
 
   #run-button {
@@ -410,7 +460,8 @@ html[data-theme="dark"] #blocklyDiv {
     height: 460px;
   }
 
-  #board-container {
+  #board-container,
+  #target-board-container {
     max-width: 100%;
     width: 100%;
     height: auto;

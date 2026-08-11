@@ -1,6 +1,6 @@
 # Drawing With Blockly
 
-A multi-page Blockly + p5.js app where users pick a level, then solve drawing challenges by programming with visual blocks.
+A multi-page Blockly + p5.js app where users pick a published level, then solve drawing challenges by programming with visual blocks. The frontend loads levels and authentication state through the Express API.
 
 ## Quick Start
 
@@ -8,11 +8,18 @@ A multi-page Blockly + p5.js app where users pick a level, then solve drawing ch
 pnpm install
 cp .env.example .env
 pnpm db:up
-pnpm api
 ```
 
-In a second terminal, run `pnpm start`. The web app runs at
-`http://localhost:8080` and the API runs at `http://localhost:3001`.
+Run the API and frontend in separate terminals:
+
+```bash
+pnpm api
+pnpm start
+```
+
+The web app runs at `http://localhost:8080` and the API runs at
+`http://localhost:3001`. Webpack proxies `/api` requests to the API during
+development.
 
 Build the frontend with `pnpm build`.
 
@@ -25,6 +32,9 @@ Available scripts:
 - `pnpm db:down`: stop PostgreSQL without deleting its data
 - `pnpm db:logs`: follow PostgreSQL logs
 - `pnpm test`: run API integration tests when `TEST_DATABASE_URL` is configured
+
+The production build is written to `dist/`; development output is written to
+`build/`.
 
 ## Database
 
@@ -55,8 +65,8 @@ Each level stores sparse `starting_board` and `target_board` JSON objects:
 ```
 
 Unlisted cells use the empty color (`#ffffff`). `starting_row` and
-`starting_column` store Blockly's initial cursor position. Three example
-levels are published; levels 4–12 are draft placeholders.
+`starting_column` store Blockly's initial cursor position. The seed creates 12
+levels: levels 1–3 are published, while levels 4–12 are draft placeholders.
 
 The browser does not connect directly to PostgreSQL. The server API owns the
 database connection.
@@ -78,6 +88,11 @@ docker compose exec postgres psql \
   -U drawing_app -d drawing_with_blockly \
   -c "UPDATE users SET role = 'admin' WHERE username = 'alice';"
 ```
+
+Published levels are available without authentication:
+
+- `GET /api/levels` lists published levels
+- `GET /api/levels/:id` returns one published level
 
 Level mutation endpoints require an authenticated admin:
 
@@ -121,11 +136,18 @@ hash it before storing it, and send the raw token only in a secure,
 
 - `src/pages/home`: level selection page
 - `src/pages/drawing`: Blockly workspace and p5 board
+- `src/pages/login`: sign-in page
+- `src/pages/register`: account creation page
+- `src/pages/logout`: session logout page
 - `src/features/board`: board state and drawing operations
-- `src/shared`: preferences, translations, toolbox, and serialization
+- `src/shared`: API client, authentication navigation, preferences, translations, toolbox, and serialization
 - `db/init`: PostgreSQL initialization and migrations
 
-The frontend does not yet fetch levels or submit authentication requests; it
-still renders its static level list and persists Blockly workspace state per
-level in browser `localStorage`. Connecting the UI to the API is a separate
-step.
+Webpack generates five pages: `index.html`, `drawing.html`, `login.html`,
+`register.html`, and `logout.html`. The home and drawing pages fetch published
+level data from the API, and the authentication pages use the session-cookie
+endpoints described above.
+
+Blockly workspace state, theme, and language preferences are still persisted in
+browser `localStorage`. Workspace progress is not currently stored on the
+server.
