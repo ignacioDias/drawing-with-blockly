@@ -50,11 +50,15 @@ if (!testDatabaseUrl) {
   });
 
   after(async () => {
-    if (levelId) await pool.query('DELETE FROM levels WHERE id = $1', [levelId]);
-    await pool.query('DELETE FROM users WHERE username = $1', [username]);
-    await pool.end();
-    if (server.closeAllConnections) server.closeAllConnections();
-    await new Promise((resolve) => server.close(resolve));
+    try {
+      if (levelId) await pool.query('DELETE FROM levels WHERE id = $1', [levelId]);
+      await pool.query('DELETE FROM users WHERE username = $1', [username]);
+    } catch {
+      // Database may be unavailable; still shut down the server and pool.
+    }
+    await pool.end().catch(() => {});
+    if (server?.closeAllConnections) server.closeAllConnections();
+    if (server) await new Promise((resolve) => server.close(resolve));
   });
 
   test('registers, authenticates, and logs out a user', async () => {

@@ -139,7 +139,7 @@ export const getToolbox = (language = 'en') => {
       {
         kind: 'category',
         name: labels.actions,
-        categoryStyle: 'logic_category',
+        categorystyle: 'logic_category',
         contents: [
           { kind: 'block', type: 'call_moveUp' },
           { kind: 'block', type: 'call_moveDown' },
@@ -162,8 +162,6 @@ export const getToolbox = (language = 'en') => {
           { kind: 'block', type: 'is_current_cell_painted' },
           { kind: 'block', type: 'get_current_row' },
           { kind: 'block', type: 'get_current_column' },
-          { kind: 'block', type: 'win_game' },
-          { kind: 'block', type: 'lose_game' },
         ],
       },
     ],

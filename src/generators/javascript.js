@@ -44,17 +44,8 @@ forBlock['call_paint'] = function(block) {
 forBlock['call_eraseColor'] = function(block, generator) {
   return 'eraseColor();\n';
 };
-forBlock['call_eraseColor'] = function(block, generator) {
-  return 'eraseColor();\n';
-};
 forBlock['get_current_color'] = function(block) {
   return ['getCurrentColor()', Order.FUNCTION_CALL];
-};
-forBlock['win_game'] = function(block, generator) {
-  return 'winGame();\n';
-};
-forBlock['lose_game'] = function(block, generator) {
-  return 'loseGame();\n';
 };
 forBlock['call_setStartingRow'] = function(block) {
   const startingRow = block.getFieldValue('STARTING_ROW');

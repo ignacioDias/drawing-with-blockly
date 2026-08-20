@@ -9,6 +9,14 @@
   --hairline: #5a5f8c;
 }
 
+html[data-theme="dark"] {
+  --canvas: #3d4f97;
+  --canvas-soft: #60619c;
+  --surface: #171b2b;
+  --ink: #f8fafc;
+  --hairline: #8ea0d0;
+}
+
 * {
   box-sizing: border-box;
 }

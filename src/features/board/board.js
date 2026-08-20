@@ -12,12 +12,15 @@ import {
 } from './constants';
 
 let board = [];
+let painted = [];
 let currentCol = -1;
 let currentRow = -1;
 let p; // p5 instance
 let targetP; // p5 instance for the read-only target board
+let lastSetup = null;
 
 export function setup({startingBoard, startingRow = -1, startingColumn = -1} = {}) {
+    lastSetup = {startingBoard, startingRow, startingColumn};
     if (p) {
         p.remove(); // Remove previous canvas if exists
     }
@@ -31,6 +34,14 @@ export function setup({startingBoard, startingRow = -1, startingColumn = -1} = {
             drawBoard(sk);
         };
     });
+}
+
+export function reset() {
+    if (!lastSetup || !p) return;
+    initBoard(lastSetup.startingBoard);
+    currentRow = lastSetup.startingRow;
+    currentCol = lastSetup.startingColumn;
+    drawBoard();
 }
 
 export function setupTarget({targetBoard} = {}) {
@@ -49,14 +60,17 @@ export function setupTarget({targetBoard} = {}) {
 function initBoard(startingBoard) {
     for (let row = 0; row < BOARD_ROWS; row++) {
         board[row] = [];
+        painted[row] = [];
         for (let col = 0; col < BOARD_COLS; col++) {
             board[row][col] = EMPTY_CELL_COLOR;
+            painted[row][col] = false;
         }
     }
 
     for (const cell of startingBoard?.cells || []) {
         if (isValidPosition(cell.column, cell.row) && typeof cell.color === 'string') {
             board[cell.row][cell.column] = cell.color;
+            painted[cell.row][cell.column] = true;
         }
     }
 }
@@ -91,46 +105,43 @@ export function drawBoard(sk = p) {
     highlightCurrentCell(sk);
 }
 
-
 export function setStartingCol(col) {
-    if(col >= 0 && col < BOARD_COLS) {
+    if (col >= 0 && col < BOARD_COLS) {
         currentCol = col;
         drawBoard();
-        highlightCurrentCell();
     }
 }
 
 export function setStartingRow(row) {
-    if(row >= 0 && row < BOARD_ROWS) {
+    if (row >= 0 && row < BOARD_ROWS) {
         currentRow = row;
         drawBoard();
-        highlightCurrentCell();
     }
 }
-
-
 
 export function paint(color) {
     if (isValidPosition(currentCol, currentRow)) {
         board[currentRow][currentCol] = color;
+        painted[currentRow][currentCol] = true;
         drawBoard();
-        highlightCurrentCell();
     }
 }
 
 export function eraseColor() {
     if (isValidPosition(currentCol, currentRow)) {
         board[currentRow][currentCol] = EMPTY_CELL_COLOR;
+        painted[currentRow][currentCol] = false;
         drawBoard();
-        highlightCurrentCell();
     }
 }
+
 export function getCurrentColor() {
-    if (isValidPosition(currentCol, currentRow)) {
-        return board[currentRow][currentCol];
+    if (!isValidPosition(currentCol, currentRow)) {
+        return EMPTY_CELL_COLOR;
     }
-    console.error("wrong call");
+    return board[currentRow][currentCol];
 }
+
 export function moveUp()    { moveBy(0, -1); }
 export function moveDown()  { moveBy(0, 1); }
 export function moveLeft()  { moveBy(-1, 0); }
@@ -146,10 +157,9 @@ function moveBy(dx, dy) {
     const newRow = currentRow + dy;
 
     if (isValidPosition(newCol, newRow)) {
-        drawBoard();
         currentCol = newCol;
         currentRow = newRow;
-        highlightCurrentCell();
+        drawBoard();
     }
 }
 
@@ -171,7 +181,7 @@ function highlightCurrentCell(sk = p) {
 
 export function isCurrentCellPainted() {
     if (!isValidPosition(currentCol, currentRow)) return false;
-    return board[currentRow][currentCol] != EMPTY_CELL_COLOR;
+    return painted[currentRow][currentCol];
 }
 
 export function getCurrentRow() {

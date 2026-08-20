@@ -25,7 +25,18 @@
       </div>
       <div id="blocklyDiv"></div>
       <button id="run-button">Start drawing!</button>
-      <div id="board-container"></div>
+      <div id="boards-container">
+        <section class="board-panel">
+          <h2 id="current-board-label">Current board</h2>
+          <p id="current-board-subtitle">Your drawing appears here.</p>
+          <div id="board-container"></div>
+        </section>
+        <section class="board-panel">
+          <h2 id="target-board-label">Target board</h2>
+          <p id="target-board-subtitle">Recreate this drawing.</p>
+          <div id="target-board-container"></div>
+        </section>
+      </div>
     </div>
   </body>
 </html>

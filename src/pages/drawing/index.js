@@ -5,7 +5,7 @@
  */
 import * as Blockly from 'blockly';
 import {blocks} from '../../blocks/text';
-import {customBlocks} from '../../blocks/custom_blocks';
+import {getCustomBlocks} from '../../blocks/custom_blocks';
 import {forBlock} from '../../generators/javascript';
 import {javascriptGenerator} from 'blockly/javascript';
 import {save, load} from '../../shared/serialization';
@@ -32,8 +32,11 @@ levelStatus.id = 'level-status';
 document.getElementById('pageContainer').prepend(levelStatus);
 
 // Register the blocks and generator with Blockly
-Blockly.common.defineBlocks(blocks);
-Blockly.common.defineBlocks(customBlocks);
+const defineAppBlocks = (language) => {
+  Blockly.common.defineBlocks(blocks);
+  Blockly.common.defineBlocks(getCustomBlocks(translations[language].blocks));
+};
+defineAppBlocks(readLanguage());
 Object.assign(javascriptGenerator.forBlock, forBlock);
 
 // Set up UI elements and inject Blockly
@@ -55,7 +58,19 @@ runButton.disabled = true;
 
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
+let loadedLevel = null;
 const renderAuthLink = setupAuthLink(authLink, () => translations[currentLanguage].common);
+
+const localized = (value, language) => value?.[language] || value?.en || '';
+
+const updatePageTitle = () => {
+  const copy = translations[currentLanguage].drawing;
+  if (loadedLevel) {
+    pageTitle.textContent = `${localized(loadedLevel.title, currentLanguage)} - ${copy.levelLabel} ${loadedLevel.sort_order}`;
+    return;
+  }
+  pageTitle.textContent = `${copy.heading} - ${copy.levelLabel} ${currentLevel}`;
+};
 
 const applyTheme = () => {
   applyThemeToDocument(currentTheme);
@@ -66,9 +81,22 @@ const applyTheme = () => {
     : commonText.themeButtonLight;
 };
 
+const refreshBlocksLanguage = () => {
+  const state = Blockly.serialization.workspaces.save(ws);
+  defineAppBlocks(currentLanguage);
+  Blockly.Events.disable();
+  try {
+    ws.clear();
+    Blockly.serialization.workspaces.load(state, ws, false);
+  } finally {
+    Blockly.Events.enable();
+  }
+  ws.updateToolbox(getToolbox(currentLanguage));
+};
+
 const applyLanguage = () => {
   const copy = translations[currentLanguage];
-  pageTitle.textContent = `${copy.drawing.heading} - ${copy.drawing.levelLabel} ${currentLevel}`;
+  updatePageTitle();
   runButton.textContent = copy.drawing.runButton;
   languageLabel.textContent = copy.common.languageLabel;
   languageSelect.querySelector('option[value="en"]').textContent = copy.common.languageOptionEn;
@@ -80,11 +108,7 @@ const applyLanguage = () => {
   currentBoardSubtitle.textContent = copy.drawing.currentBoardSubtitle;
   targetBoardSubtitle.textContent = copy.drawing.targetBoardSubtitle;
   renderAuthLink();
-
-  if (typeof ws.updateToolbox === 'function') {
-    ws.updateToolbox(getToolbox(currentLanguage));
-  }
-
+  refreshBlocksLanguage();
   applyTheme();
 };
 
@@ -133,7 +157,7 @@ ws.addChangeListener((e) => {
 });
 
 runButton.addEventListener('click', () => {
-  Board.drawBoard();
+  Board.reset();
   const code = javascriptGenerator.workspaceToCode(ws);
   eval(code);
 });
@@ -154,7 +178,8 @@ applyLanguage();
 
 getLevel(currentLevel)
   .then((level) => {
-    pageTitle.textContent = `${localized(level.title, currentLanguage)} - ${copyLevelLabel(currentLanguage)} ${level.sort_order}`;
+    loadedLevel = level;
+    updatePageTitle();
     Board.setup({
       startingBoard: level.starting_board,
       startingRow: level.starting_row,
@@ -181,11 +206,3 @@ window.setStartingCol = Board.setStartingCol;
 window.getCurrentColumn = Board.getCurrentColumn;
 window.getCurrentRow = Board.getCurrentRow;
 window.isCurrentCellPainted = Board.isCurrentCellPainted;
-
-function localized(value, language) {
-  return value?.[language] || value?.en || '';
-}
-
-function copyLevelLabel(language) {
-  return translations[language].drawing.levelLabel;
-}

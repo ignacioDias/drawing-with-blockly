@@ -29,6 +29,12 @@ export const load = function (workspace, storageKey = DEFAULT_STORAGE_KEY) {
 
   // Don't emit events during loading.
   Blockly.Events.disable();
-  Blockly.serialization.workspaces.load(JSON.parse(data), workspace, false);
-  Blockly.Events.enable();
+  try {
+    Blockly.serialization.workspaces.load(JSON.parse(data), workspace, false);
+  } catch (error) {
+    console.warn('Discarding unreadable saved workspace', error);
+    window.localStorage?.removeItem(storageKey);
+  } finally {
+    Blockly.Events.enable();
+  }
 };
