@@ -2,3 +2,13 @@ poder crear niveles desde la interfaz
 que al terminar un nivel te felicite
 página para el perfil
 limpiar tablero
+
+un cuaderno tiene muchos niveles
+cada usuario crea un cuaderno
+agregar un reiniciar tablero
+modularizar board para que pueda ser cualquier canva
+que los pasos de p5 sean secuenciales, nos instantáneos
+permitir a cada nivel bloquear unos bloques
+permitir programar con texto en una sección aparte
+cada nivel tiene n tableros iniciales y n finales aosciados, se elige uno random
+descargar actividades
