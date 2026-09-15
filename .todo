@@ -3,8 +3,8 @@ que al terminar un nivel te felicite
 página para el perfil
 limpiar tablero
 
-un cuaderno tiene muchos niveles
-cada usuario crea un cuaderno
+#un cuaderno tiene muchos niveles
+#cada usuario crea un cuaderno
 agregar un reiniciar tablero
 modularizar board para que pueda ser cualquier canva
 que los pasos de p5 sean secuenciales, nos instantáneos

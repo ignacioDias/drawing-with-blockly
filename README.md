@@ -93,12 +93,18 @@ Published levels are available without authentication:
 
 - `GET /api/levels` lists published levels
 - `GET /api/levels/:id` returns one published level
+- `GET /api/collections` lists all collections with their published levels
 
-Level mutation endpoints require an authenticated admin:
+Collection and level mutation endpoints require an authenticated admin:
 
+- `POST /api/collections` creates a collection
+- `PUT /api/collections/:id` partially updates a collection
+- `DELETE /api/collections/:id` deletes an empty collection
 - `POST /api/levels` creates a level
 - `PUT /api/levels/:id` partially updates a level
 - `DELETE /api/levels/:id` deletes a level
+
+Every level must belong to exactly one collection through `collection_id`.
 
 Level requests use the database fields `slug`, `title`, `description`,
 `difficulty`, `sort_order`, `starting_board`, `target_board`, `starting_row`,

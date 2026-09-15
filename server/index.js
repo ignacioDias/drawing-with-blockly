@@ -147,10 +147,102 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json({user: {id: req.user.id, username: req.user.username, role: req.user.role}});
 });
 
+app.get('/api/collections', async (req, res, next) => {
+  try {
+    const {rows} = await pool.query(
+      `SELECT c.id, c.name, c.description,
+              COALESCE(
+                jsonb_agg(
+                  jsonb_build_object(
+                    'id', l.id, 'slug', l.slug, 'title', l.title,
+                    'description', l.description, 'difficulty', l.difficulty,
+                    'sort_order', l.sort_order, 'starting_board', l.starting_board,
+                    'target_board', l.target_board, 'starting_row', l.starting_row,
+                    'starting_column', l.starting_column,
+                    'validation_config', l.validation_config,
+                    'collection_id', l.collection_id
+                  ) ORDER BY l.sort_order
+                ) FILTER (WHERE l.id IS NOT NULL),
+                '[]'::jsonb
+              ) AS levels
+       FROM collections c
+       LEFT JOIN levels l ON l.collection_id = c.id AND l.is_published
+       GROUP BY c.id
+       ORDER BY c.id`,
+    );
+    return res.json({collections: rows});
+  } catch (error) {
+    return next(error);
+  }
+});
+
+const validateCollection = (body, partial = false) => {
+  if (!partial && (body.name === undefined || body.description === undefined)) {
+    return 'Name and description are required';
+  }
+  if (body.name !== undefined && (typeof body.name !== 'string' || !body.name.trim() || body.name.length > 200)) {
+    return 'Invalid collection name';
+  }
+  if (body.description !== undefined && (typeof body.description !== 'string' || body.description.length > 2000)) {
+    return 'Invalid collection description';
+  }
+  return null;
+};
+
+app.post('/api/collections', requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const validationError = validateCollection(req.body);
+    if (validationError) return sendError(res, 400, validationError);
+    const {rows} = await pool.query(
+      'INSERT INTO collections (name, description) VALUES ($1, $2) RETURNING *',
+      [req.body.name, req.body.description],
+    );
+    return res.status(201).json({collection: rows[0]});
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/collections/:id', requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return sendError(res, 400, 'Invalid collection id');
+    const validationError = validateCollection(req.body, true);
+    if (validationError) return sendError(res, 400, validationError);
+    const updates = ['name', 'description'].filter((field) => req.body[field] !== undefined);
+    if (!updates.length) return sendError(res, 400, 'No fields to update');
+    const values = updates.map((field) => req.body[field]);
+    values.push(id);
+    const assignments = updates.map((field, index) => `${field} = $${index + 1}`).join(', ');
+    const {rows} = await pool.query(
+      `UPDATE collections SET ${assignments}, updated_at = now()
+       WHERE id = $${values.length} RETURNING *`,
+      values,
+    );
+    if (!rows[0]) return sendError(res, 404, 'Collection not found');
+    return res.json({collection: rows[0]});
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/collections/:id', requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return sendError(res, 400, 'Invalid collection id');
+    const result = await pool.query('DELETE FROM collections WHERE id = $1', [id]);
+    if (!result.rowCount) return sendError(res, 404, 'Collection not found');
+    return res.status(204).end();
+  } catch (error) {
+    if (error.code === '23503') return sendError(res, 409, 'Collection still contains levels');
+    return next(error);
+  }
+});
+
 app.get('/api/levels', async (req, res, next) => {
   try {
     const {rows} = await pool.query(
-      `SELECT id, slug, title, description, difficulty, sort_order,
+       `SELECT id, slug, title, description, difficulty, sort_order, collection_id,
               starting_board, target_board, starting_row, starting_column,
               validation_config
        FROM levels
@@ -168,7 +260,7 @@ app.get('/api/levels/:id', async (req, res, next) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id < 1) return sendError(res, 400, 'Invalid level id');
     const {rows} = await pool.query(
-      `SELECT id, slug, title, description, difficulty, sort_order,
+       `SELECT id, slug, title, description, difficulty, sort_order, collection_id,
               starting_board, target_board, starting_row, starting_column,
               validation_config
        FROM levels
@@ -187,11 +279,12 @@ const boardIsValid = (board) => (
 );
 
 const validateLevel = (body, partial = false) => {
-  const fields = ['slug', 'title', 'description', 'difficulty', 'sort_order', 'starting_board', 'target_board', 'starting_row', 'starting_column', 'validation_config', 'is_published'];
+  const fields = ['slug', 'title', 'description', 'difficulty', 'sort_order', 'collection_id', 'starting_board', 'target_board', 'starting_row', 'starting_column', 'validation_config', 'is_published'];
   if (!partial && fields.some((field) => body[field] === undefined)) return 'All level fields are required';
   if (body.slug !== undefined && (typeof body.slug !== 'string' || !/^[a-z0-9-]+$/.test(body.slug))) return 'Invalid slug';
   if (body.difficulty !== undefined && (!Number.isInteger(body.difficulty) || body.difficulty < 1 || body.difficulty > 5)) return 'Invalid difficulty';
   if (body.sort_order !== undefined && (!Number.isInteger(body.sort_order) || body.sort_order < 1)) return 'Invalid sort order';
+  if (body.collection_id !== undefined && (!Number.isInteger(body.collection_id) || body.collection_id < 1)) return 'Invalid collection id';
   if (body.starting_row !== undefined && (!Number.isInteger(body.starting_row) || body.starting_row < 0 || body.starting_row > 19)) return 'Invalid starting row';
   if (body.starting_column !== undefined && (!Number.isInteger(body.starting_column) || body.starting_column < 0 || body.starting_column > 19)) return 'Invalid starting column';
   if (body.starting_board !== undefined && !boardIsValid(body.starting_board)) return 'Invalid starting board';
@@ -199,7 +292,7 @@ const validateLevel = (body, partial = false) => {
   return null;
 };
 
-const levelFields = ['slug', 'title', 'description', 'difficulty', 'sort_order', 'starting_board', 'target_board', 'starting_row', 'starting_column', 'validation_config', 'is_published'];
+const levelFields = ['slug', 'title', 'description', 'difficulty', 'sort_order', 'collection_id', 'starting_board', 'target_board', 'starting_row', 'starting_column', 'validation_config', 'is_published'];
 
 app.post('/api/levels', requireAuth, requireAdmin, async (req, res, next) => {
   try {
@@ -214,6 +307,7 @@ app.post('/api/levels', requireAuth, requireAdmin, async (req, res, next) => {
     return res.status(201).json({level: rows[0]});
   } catch (error) {
     if (error.code === '23505') return sendError(res, 409, 'Slug or sort order is already in use');
+    if (error.code === '23503') return sendError(res, 400, 'Collection not found');
     return next(error);
   }
 });
@@ -237,6 +331,7 @@ app.put('/api/levels/:id', requireAuth, requireAdmin, async (req, res, next) => 
     return res.json({level: rows[0]});
   } catch (error) {
     if (error.code === '23505') return sendError(res, 409, 'Slug or sort order is already in use');
+    if (error.code === '23503') return sendError(res, 400, 'Collection not found');
     return next(error);
   }
 });

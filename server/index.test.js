@@ -13,8 +13,9 @@ if (!testDatabaseUrl) {
   let baseUrl;
   const username = `test_${Date.now()}`;
   const password = 'correct horse battery staple';
-  let cookie;
-  let levelId;
+   let cookie;
+   let levelId;
+   let collectionId;
 
   const request = (path, options = {}) => fetch(`${baseUrl}${path}`, {
     ...options,
@@ -52,6 +53,7 @@ if (!testDatabaseUrl) {
   after(async () => {
     try {
       if (levelId) await pool.query('DELETE FROM levels WHERE id = $1', [levelId]);
+      if (collectionId) await pool.query('DELETE FROM collections WHERE id = $1', [collectionId]);
       await pool.query('DELETE FROM users WHERE username = $1', [username]);
     } catch {
       // Database may be unavailable; still shut down the server and pool.
@@ -91,6 +93,7 @@ if (!testDatabaseUrl) {
       ['POST', '/api/levels'],
       ['PUT', '/api/levels/1'],
       ['DELETE', '/api/levels/1'],
+      ['POST', '/api/collections'],
     ]) {
       response = await request(path, {method, body: JSON.stringify({})});
       assert.equal(response.status, 401);
@@ -136,7 +139,14 @@ if (!testDatabaseUrl) {
   test('admin can create, update, and delete a level', async () => {
     await pool.query('UPDATE users SET role = \'admin\' WHERE username = $1', [username]);
 
-    let response = await request('/api/levels', {
+    let response = await request('/api/collections', {
+      method: 'POST',
+      body: JSON.stringify({name: `Test collection ${Date.now()}`, description: 'Test collection description'}),
+    });
+    assert.equal(response.status, 201);
+    collectionId = (await json(response)).collection.id;
+
+    response = await request('/api/levels', {
       method: 'POST',
       body: JSON.stringify({}),
     });
@@ -148,6 +158,7 @@ if (!testDatabaseUrl) {
       description: {en: 'Test description'},
       difficulty: 1,
       sort_order: 10000 + Math.floor(Math.random() * 1000),
+      collection_id: collectionId,
       starting_board: {rows: 20, columns: 20, cells: []},
       target_board: {rows: 20, columns: 20, cells: [{row: 0, column: 0, color: '#000000'}]},
       starting_row: 0,
@@ -173,6 +184,10 @@ if (!testDatabaseUrl) {
     response = await request(`/api/levels/${levelId}`, {method: 'DELETE'});
     assert.equal(response.status, 204);
     levelId = null;
+
+    response = await request(`/api/collections/${collectionId}`, {method: 'DELETE'});
+    assert.equal(response.status, 204);
+    collectionId = null;
 
     response = await request('/api/levels/not-a-number', {method: 'DELETE'});
     assert.equal(response.status, 400);

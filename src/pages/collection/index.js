@@ -1,4 +1,4 @@
-import './styles.css';
+import '../home/styles.css';
 import {
   LANGUAGES,
   THEMES,
@@ -12,42 +12,50 @@ import {translations} from '../../shared/translations';
 import {getCollections} from '../../shared/api';
 import {setupAuthLink} from '../../shared/auth-navigation';
 
-const collectionList = document.getElementById('collection-list');
+const collectionId = new URLSearchParams(window.location.search).get('id');
+const levelGrid = document.getElementById('level-grid');
 const levelStatus = document.getElementById('level-status');
+const collectionTitle = document.getElementById('collection-title');
+const collectionDescription = document.getElementById('collection-description');
 const themeToggle = document.getElementById('theme-toggle');
 const authLink = document.getElementById('auth-link');
 const languageSelect = document.getElementById('language-select');
 const languageLabel = document.querySelector('.control-group span');
-const homeTitle = document.getElementById('home-title');
-const homeSubtitle = document.getElementById('home-subtitle');
+const backLink = document.querySelector('.back-link');
 
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
-let collections = [];
+let collection = null;
 const renderAuthLink = setupAuthLink(authLink, () => translations[currentLanguage].common);
 
 const localized = (value, language) => value?.[language] || value?.en || '';
 
-const createCollection = (collection) => {
+const createLevelCard = (level, text) => {
   const card = document.createElement('button');
   card.type = 'button';
-  card.className = 'collection-card';
-  card.setAttribute('aria-label', collection.name);
+  card.className = 'level-card';
+  card.setAttribute('aria-label', `${text.levelLabel} ${level.sort_order}`);
 
-  const heading = document.createElement('h2');
-  heading.textContent = collection.name;
-  const description = document.createElement('p');
-  description.textContent = collection.description;
-  card.append(heading, description);
+  const badge = document.createElement('span');
+  badge.className = 'level-badge';
+  badge.textContent = `${text.levelLabel} ${level.sort_order}`;
+  const caption = document.createElement('span');
+  caption.className = 'level-caption';
+  caption.textContent = localized(level.title, currentLanguage) || text.openWorkspace;
+  card.append(badge, caption);
   card.addEventListener('click', () => {
-    window.location.href = `collection.html?id=${encodeURIComponent(String(collection.id))}`;
+    window.location.href = `drawing.html?level=${encodeURIComponent(String(level.id))}`;
   });
   return card;
 };
 
-const renderCollections = () => {
-  collectionList.innerHTML = '';
-  collections.forEach((collection) => collectionList.appendChild(createCollection(collection)));
+const renderCollection = () => {
+  const copy = translations[currentLanguage];
+  collectionTitle.textContent = collection?.name || copy.home.title;
+  collectionDescription.textContent = collection?.description || '';
+  levelGrid.innerHTML = '';
+  collection?.levels.forEach((level) => levelGrid.appendChild(createLevelCard(level, copy.home)));
+  levelStatus.textContent = collection ? '' : copy.home.loading;
 };
 
 const applyTheme = () => {
@@ -62,14 +70,12 @@ const applyTheme = () => {
 const applyLanguage = () => {
   const copy = translations[currentLanguage];
   languageLabel.textContent = copy.common.languageLabel;
+  backLink.textContent = copy.common.backToCollections;
   languageSelect.querySelector('option[value="en"]').textContent = copy.common.languageOptionEn;
   languageSelect.querySelector('option[value="es"]').textContent = copy.common.languageOptionEs;
   languageSelect.value = currentLanguage;
-  homeTitle.textContent = copy.home.title;
-  homeSubtitle.textContent = copy.home.subtitle;
-  levelStatus.textContent = collections.length ? '' : copy.home.loading;
   renderAuthLink();
-  renderCollections();
+  renderCollection();
   applyTheme();
 };
 
@@ -88,8 +94,9 @@ languageSelect.addEventListener('change', () => {
 applyLanguage();
 
 getCollections()
-  .then((loadedCollections) => {
-    collections = loadedCollections;
+  .then((collections) => {
+    collection = collections.find((item) => String(item.id) === String(collectionId)) || null;
+    if (!collection) throw new Error('Collection not found');
     applyLanguage();
   })
   .catch(() => {

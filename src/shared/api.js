@@ -20,6 +20,11 @@ export const getLevels = async () => {
   return levels;
 };
 
+export const getCollections = async () => {
+  const {collections} = await request('/api/collections');
+  return collections;
+};
+
 export const getLevel = async (id) => {
   const {level} = await request(`/api/levels/${encodeURIComponent(String(id))}`);
   return level;

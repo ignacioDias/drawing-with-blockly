@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const config = {
   entry: {
     main: './src/pages/home/index.js',
+    collection: './src/pages/collection/index.js',
     drawing: './src/pages/drawing/index.js',
     login: './src/pages/login/index.js',
     register: './src/pages/register/index.js',
@@ -44,6 +45,11 @@ const config = {
       template: 'src/pages/drawing/index.html',
       filename: 'drawing.html',
       chunks: ['runtime', 'drawing'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/pages/collection/index.html',
+      filename: 'collection.html',
+      chunks: ['runtime', 'collection'],
     }),
     new HtmlWebpackPlugin({
       template: 'src/pages/login/index.html',
