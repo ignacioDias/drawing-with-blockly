@@ -34,6 +34,7 @@ export const translations = {
       targetBoardSubtitle: 'Recreate this drawing.',
       loading: 'Loading workspace...',
       loadError: 'Unable to load this level. Please return to the level list.',
+      levelComplete: 'You completed the level!',
     },
     blocks: {
       moveUp: 'move up',
@@ -191,6 +192,7 @@ export const translations = {
       targetBoardSubtitle: 'Recrea este dibujo.',
       loading: 'Cargando espacio de trabajo...',
       loadError: 'No se puede cargar este nivel. Vuelve a la lista de niveles.',
+      levelComplete: 'Completaste el nivel!',
     },
     blocks: {
       moveUp: 'mover arriba',

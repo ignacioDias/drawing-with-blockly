@@ -260,6 +260,27 @@ export function getCurrentColumn() {
 }
 
 /**
+ * Returns whether the current board matches the given target board.
+ * @param {BoardData} targetBoard
+ * @return {boolean}
+ */
+export function isSolved(targetBoard) {
+    const expected = new Map(
+        (targetBoard?.cells || []).map((cell) => [`${cell.row}:${cell.column}`, cell.color]),
+    );
+    for (let row = 0; row < BOARD_ROWS; row++) {
+        for (let col = 0; col < BOARD_COLS; col++) {
+            const targetColor = expected.get(`${row}:${col}`) || EMPTY_CELL_COLOR;
+            const currentColor = painted[row][col] ? board[row][col] : EMPTY_CELL_COLOR;
+            if (targetColor !== currentColor) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/**
  * Returns the current board state as a serializable object.
  * @return {BoardData}
  */

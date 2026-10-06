@@ -168,6 +168,9 @@ runButton.addEventListener('click', () => {
   Board.reset();
   const code = javascriptGenerator.workspaceToCode(ws);
   eval(code);
+  if (loadedLevel && Board.isSolved(loadedLevel.target_board)) {
+    window.alert(translations[currentLanguage].drawing.levelComplete);
+  }
 });
 
 clearBoardButton.addEventListener('click', () => {
