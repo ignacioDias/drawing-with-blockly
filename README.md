@@ -149,14 +149,18 @@ hash it before storing it, and send the raw token only in a secure,
 - `src/pages/register`: account creation page
 - `src/pages/logout`: session logout page
 - `src/pages/profile`: account profile page
+- `src/pages/collection-create`: admin collection creation page
+- `src/pages/level-create`: admin level creation page (Blockly + p5 board editor)
 - `src/features/board`: board state and drawing operations
 - `src/shared`: API client, authentication navigation, preferences, translations, toolbox, and serialization
 - `db/init`: PostgreSQL initialization and migrations
 
-Webpack generates six pages: `index.html`, `drawing.html`, `login.html`,
-`register.html`, `logout.html`, and `profile.html`. The home and drawing pages
-fetch published level data from the API, and the authentication pages use the
-session-cookie endpoints described above.
+Webpack generates eight pages: `index.html`, `drawing.html`, `login.html`,
+`register.html`, `logout.html`, `profile.html`, `collection-create.html`, and
+`level-create.html`. The home and drawing pages fetch published level data from
+the API, and the authentication pages use the session-cookie endpoints described
+above. Admin users see "+" buttons on the home and collection pages that open
+the collection/level creation pages.
 
 Blockly workspace state, theme, and language preferences are still persisted in
 browser `localStorage`. Workspace progress is not currently stored on the

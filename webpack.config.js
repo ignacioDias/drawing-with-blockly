@@ -11,6 +11,8 @@ const config = {
     register: './src/pages/register/index.js',
     logout: './src/pages/logout/index.js',
     profile: './src/pages/profile/index.js',
+    'collection-create': './src/pages/collection-create/index.js',
+    'level-create': './src/pages/level-create/index.js',
   },
   output: {
     // Compile the source files into a bundle.
@@ -71,6 +73,16 @@ const config = {
       template: 'src/pages/profile/index.html',
       filename: 'profile.html',
       chunks: ['runtime', 'profile'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/pages/collection-create/index.html',
+      filename: 'collection-create.html',
+      chunks: ['runtime', 'collection-create'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/pages/level-create/index.html',
+      filename: 'level-create.html',
+      chunks: ['runtime', 'level-create'],
     }),
   ],
 };

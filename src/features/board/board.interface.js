@@ -126,6 +126,12 @@ class BoardInterface {
    * @return {number}
    */
   getCurrentColumn() {}
+
+  /**
+   * Returns the current board state as a serializable object.
+   * @return {BoardData}
+   */
+  getBoardState() {}
 }
 
 export {};

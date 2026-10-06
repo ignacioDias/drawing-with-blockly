@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Create Level</title>
+  </head>
+  <body>
+    <div class="top-controls" role="toolbar" aria-label="App controls">
+      <a class="back-link" href="index.html">Back to collection</a>
+      <label class="control-group" for="language-select">
+        <span>Language</span>
+        <select id="language-select">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </label>
+      <button id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+      <a id="profile-link" class="auth-link" href="profile.html" hidden>Profile</a>
+      <a id="auth-link" class="auth-link" href="login.html">Log in</a>
+    </div>
+    <div id="pageContainer">
+      <div id="page-title">Create a level</div>
+      <p id="level-status" class="level-status" role="status"></p>
+      <form id="level-form" class="level-form">
+        <label for="level-title"><span id="title-label">Title</span> <input id="level-title" name="title" required maxlength="200" /></label>
+        <label for="level-description"><span id="description-label">Description</span> <textarea id="level-description" name="description" maxlength="2000" rows="2"></textarea></label>
+        <label for="level-difficulty"><span id="difficulty-label">Difficulty</span>
+          <select id="level-difficulty" name="difficulty">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+        <label class="published-field" for="level-published"><input id="level-published" type="checkbox" checked /> <span id="published-label">Published</span></label>
+        <button id="level-submit" class="level-submit" type="submit">Create level</button>
+      </form>
+      <div class="board-mode" role="tablist" aria-label="Board editor">
+        <button id="mode-starting" class="mode-button active" type="button" role="tab" aria-selected="true" data-mode="starting">Starting board</button>
+        <button id="mode-target" class="mode-button" type="button" role="tab" aria-selected="false" data-mode="target">Target board</button>
+      </div>
+      <div id="editor">
+        <div id="outputPane">
+          <pre id="generatedCode"><code></code></pre>
+          <div id="output"></div>
+        </div>
+        <div id="blocklyDiv"></div>
+        <div id="board-panel">
+          <h2 id="board-label">Starting board</h2>
+          <div id="board-container"></div>
+          <div id="board-actions">
+            <button id="run-button">Run</button>
+            <button id="clear-board-button">Clear board</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

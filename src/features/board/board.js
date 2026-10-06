@@ -258,3 +258,19 @@ export function getCurrentRow() {
 export function getCurrentColumn() {
     return currentCol;
 }
+
+/**
+ * Returns the current board state as a serializable object.
+ * @return {BoardData}
+ */
+export function getBoardState() {
+    const cells = [];
+    for (let row = 0; row < BOARD_ROWS; row++) {
+        for (let col = 0; col < BOARD_COLS; col++) {
+            if (painted[row][col]) {
+                cells.push({row, column: col, color: board[row][col]});
+            }
+        }
+    }
+    return {rows: BOARD_ROWS, columns: BOARD_COLS, cells};
+}

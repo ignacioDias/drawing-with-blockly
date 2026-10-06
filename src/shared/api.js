@@ -25,6 +25,22 @@ export const getCollections = async () => {
   return collections;
 };
 
+export const createCollection = async (collection) => {
+  const {collection: created} = await request('/api/collections', {
+    method: 'POST',
+    body: JSON.stringify(collection),
+  });
+  return created;
+};
+
+export const createLevel = async (level) => {
+  const {level: created} = await request('/api/levels', {
+    method: 'POST',
+    body: JSON.stringify(level),
+  });
+  return created;
+};
+
 export const getLevel = async (id) => {
   const {level} = await request(`/api/levels/${encodeURIComponent(String(id))}`);
   return level;

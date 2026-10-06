@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Create Collection</title>
+  </head>
+  <body>
+    <div class="top-controls" role="toolbar" aria-label="App controls">
+      <a class="back-link" href="index.html">Back to levels</a>
+      <label class="control-group" for="language-select">
+        <span>Language</span>
+        <select id="language-select">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </label>
+      <button id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+      <a id="profile-link" class="auth-link" href="profile.html" hidden>Profile</a>
+      <a id="auth-link" class="auth-link" href="login.html">Log in</a>
+    </div>
+    <main class="create-shell">
+      <header class="create-header">
+        <h1 id="create-title">Create a collection</h1>
+        <p id="create-subtitle">Add a new drawing collection.</p>
+      </header>
+      <form id="create-form" class="create-form">
+        <label for="collection-name"><span id="name-label">Name</span> <input id="collection-name" name="name" required maxlength="200" /></label>
+        <label for="collection-description"><span id="description-label">Description</span> <textarea id="collection-description" name="description" maxlength="2000" rows="4"></textarea></label>
+        <button id="create-submit" class="create-button" type="submit">Create collection</button>
+      </form>
+      <p id="create-status" class="create-status" role="status"></p>
+    </main>
+  </body>
+</html>

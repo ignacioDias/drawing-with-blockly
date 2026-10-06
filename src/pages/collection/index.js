@@ -20,6 +20,7 @@ const collectionDescription = document.getElementById('collection-description');
 const themeToggle = document.getElementById('theme-toggle');
 const authLink = document.getElementById('auth-link');
 const profileLink = document.getElementById('profile-link');
+const adminLink = document.getElementById('admin-link');
 const languageSelect = document.getElementById('language-select');
 const languageLabel = document.querySelector('.control-group span');
 const backLink = document.querySelector('.back-link');
@@ -28,9 +29,11 @@ let currentLanguage = readLanguage();
 let currentTheme = readTheme();
 let collection = null;
 const renderAuthLink = setupAuthNavigation(
-  {authLink, profileLink},
+  {authLink, profileLink, adminLink},
   () => translations[currentLanguage].common,
 );
+
+adminLink.href = `level-create.html?collection=${encodeURIComponent(collectionId || '')}`;
 
 const localized = (value, language) => value?.[language] || value?.en || '';
 

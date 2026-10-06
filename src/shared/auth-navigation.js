@@ -1,7 +1,8 @@
 import {getCurrentUser} from './api';
 
-export const setupAuthNavigation = ({authLink, profileLink}, getLabels) => {
+export const setupAuthNavigation = ({authLink, profileLink, adminLink}, getLabels) => {
   let isAuthenticated = false;
+  let isAdmin = false;
 
   const render = () => {
     const labels = getLabels();
@@ -14,12 +15,16 @@ export const setupAuthNavigation = ({authLink, profileLink}, getLabels) => {
       profileLink.href = 'profile.html';
       profileLink.hidden = !isAuthenticated;
     }
+    if (adminLink) {
+      adminLink.hidden = !isAdmin;
+    }
   };
 
   render();
   getCurrentUser()
-    .then(() => {
+    .then(({user}) => {
       isAuthenticated = true;
+      isAdmin = user.role === 'admin';
       render();
     })
     .catch(() => {});
