@@ -44,6 +44,7 @@ const codeDiv = document.getElementById('generatedCode').firstChild;
 const outputDiv = document.getElementById('output');
 const blocklyDiv = document.getElementById('blocklyDiv');
 const runButton = document.getElementById('run-button');
+const clearBoardButton = document.getElementById('clear-board-button');
 const themeToggle = document.getElementById('theme-toggle');
 const languageSelect = document.getElementById('language-select');
 const pageTitle = document.getElementById('page-title');
@@ -102,6 +103,7 @@ const applyLanguage = () => {
   const copy = translations[currentLanguage];
   updatePageTitle();
   runButton.textContent = copy.drawing.runButton;
+  clearBoardButton.textContent = copy.drawing.clearBoard;
   languageLabel.textContent = copy.common.languageLabel;
   languageSelect.querySelector('option[value="en"]').textContent = copy.common.languageOptionEn;
   languageSelect.querySelector('option[value="es"]').textContent = copy.common.languageOptionEs;
@@ -164,6 +166,10 @@ runButton.addEventListener('click', () => {
   Board.reset();
   const code = javascriptGenerator.workspaceToCode(ws);
   eval(code);
+});
+
+clearBoardButton.addEventListener('click', () => {
+  Board.reset();
 });
 
 themeToggle.addEventListener('click', () => {

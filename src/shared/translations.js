@@ -23,6 +23,7 @@ export const translations = {
     drawing: {
       heading: 'Make a picture with blocks',
       runButton: 'Start drawing!',
+      clearBoard: 'Clear board',
       levelLabel: 'Level',
       currentBoard: 'Current board',
       targetBoard: 'Target board',
@@ -144,6 +145,7 @@ export const translations = {
     drawing: {
       heading: 'Haz una imagen con bloques',
       runButton: 'Empieza a dibujar!',
+      clearBoard: 'Limpiar tablero',
       levelLabel: 'Nivel',
       currentBoard: 'Tablero actual',
       targetBoard: 'Tablero objetivo',
