@@ -45,6 +45,7 @@ const outputDiv = document.getElementById('output');
 const blocklyDiv = document.getElementById('blocklyDiv');
 const runButton = document.getElementById('run-button');
 const clearBoardButton = document.getElementById('clear-board-button');
+const clearBlocksButton = document.getElementById('clear-blocks-button');
 const themeToggle = document.getElementById('theme-toggle');
 const languageSelect = document.getElementById('language-select');
 const pageTitle = document.getElementById('page-title');
@@ -104,6 +105,7 @@ const applyLanguage = () => {
   updatePageTitle();
   runButton.textContent = copy.drawing.runButton;
   clearBoardButton.textContent = copy.drawing.clearBoard;
+  clearBlocksButton.textContent = copy.drawing.clearBlocks;
   languageLabel.textContent = copy.common.languageLabel;
   languageSelect.querySelector('option[value="en"]').textContent = copy.common.languageOptionEn;
   languageSelect.querySelector('option[value="es"]').textContent = copy.common.languageOptionEs;
@@ -170,6 +172,10 @@ runButton.addEventListener('click', () => {
 
 clearBoardButton.addEventListener('click', () => {
   Board.reset();
+});
+
+clearBlocksButton.addEventListener('click', () => {
+  ws.clear();
 });
 
 themeToggle.addEventListener('click', () => {

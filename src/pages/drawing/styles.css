@@ -107,7 +107,8 @@ code {
 .control-group select,
 #theme-toggle,
 #run-button,
-#clear-board-button {
+#clear-board-button,
+#clear-blocks-button {
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -373,7 +374,8 @@ html[data-theme="dark"] #blocklyDiv {
 }
 
 #run-button,
-#clear-board-button {
+#clear-board-button,
+#clear-blocks-button {
   padding: 0 16px;
   height: 26px;
   border-radius: 2px;
@@ -393,7 +395,8 @@ html[data-theme="dark"] #blocklyDiv {
   border: 1px solid #b15a00;
 }
 
-#clear-board-button {
+#clear-board-button,
+#clear-blocks-button {
   background: var(--canvas-soft);
   color: var(--ink);
   border: 1px solid var(--chrome-indigo);
@@ -401,6 +404,7 @@ html[data-theme="dark"] #blocklyDiv {
 
 #run-button:hover,
 #clear-board-button:hover,
+#clear-blocks-button:hover,
 #theme-toggle:hover {
   filter: brightness(1.03);
 }
@@ -413,6 +417,7 @@ html[data-theme="dark"] #blocklyDiv {
 
 #run-button:active,
 #clear-board-button:active,
+#clear-blocks-button:active,
 #theme-toggle:active {
   transform: translateY(1px);
 }
