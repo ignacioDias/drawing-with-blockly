@@ -15,10 +15,10 @@
 
 ## Structure
 
-- `src/pages/home/index.js` and `src/pages/drawing/index.js` are the two webpack entrypoints, producing `index.html` and `drawing.html`.
-- Blockly workspace state and user preferences currently live in browser `localStorage`; the frontend still uses a static 12-level list and does not call the API.
-- `server/index.js` owns all PostgreSQL access and authentication/level endpoints. Browser code must not connect directly to PostgreSQL.
-- `db/init/` defines the levels, users, and sessions schema and seed data. Level boards are sparse 20x20 JSON objects.
+- Webpack has nine entrypoints, one per page under `src/pages/*/index.js` (`home`, `collection`, `drawing`, `login`, `register`, `logout`, `profile`, `collection-create`, `level-create`), each producing a matching HTML page.
+- Blockly workspace state and user preferences currently live in browser `localStorage`. Level data and authentication state are loaded through the API client in `src/shared/api.js`; pages fetch from the API rather than using static data.
+- `server/index.js` owns all PostgreSQL access and authentication/level/collection/profile endpoints. Browser code must not connect directly to PostgreSQL.
+- `db/init/` defines the levels, users, sessions, collections, and profile schema and seed data. Level boards are sparse 20x20 JSON objects.
 
 ## Frontend Quirk
 

@@ -45,7 +45,8 @@ cp .env.example .env
 pnpm db:up
 ```
 
-The initialization scripts create the `levels`, `users`, and `sessions` tables.
+The initialization scripts create the `levels`, `users`, `sessions`, and
+`collections` tables, plus profile columns on `users`.
 Database data is stored in the `postgres_data` Docker volume. Reset the local
 database and rerun all initialization scripts with:
 
@@ -144,6 +145,7 @@ hash it before storing it, and send the raw token only in a secure,
 ## Project Structure
 
 - `src/pages/home`: level selection page
+- `src/pages/collection`: single collection page
 - `src/pages/drawing`: Blockly workspace and p5 board
 - `src/pages/login`: sign-in page
 - `src/pages/register`: account creation page
@@ -155,9 +157,9 @@ hash it before storing it, and send the raw token only in a secure,
 - `src/shared`: API client, authentication navigation, preferences, translations, toolbox, and serialization
 - `db/init`: PostgreSQL initialization and migrations
 
-Webpack generates eight pages: `index.html`, `drawing.html`, `login.html`,
-`register.html`, `logout.html`, `profile.html`, `collection-create.html`, and
-`level-create.html`. The home and drawing pages fetch published level data from
+Webpack generates nine pages: `index.html`, `collection.html`, `drawing.html`,
+`login.html`, `register.html`, `logout.html`, `profile.html`,
+`collection-create.html`, and `level-create.html`. The home and drawing pages fetch published level data from
 the API, and the authentication pages use the session-cookie endpoints described
 above. Admin users see "+" buttons on the home and collection pages that open
 the collection/level creation pages.
