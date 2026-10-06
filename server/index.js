@@ -147,6 +147,65 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json({user: {id: req.user.id, username: req.user.username, role: req.user.role}});
 });
 
+const PROFILE_FIELDS = ['display_name', 'email', 'bio'];
+
+const validateProfileField = (field, value) => {
+  if (value === null) return null;
+  if (typeof value !== 'string') return `Invalid ${field}`;
+  const trimmed = value.trim();
+  if (field === 'display_name' && trimmed.length > 100) return 'Invalid display name';
+  if (field === 'email') {
+    if (trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return 'Invalid email';
+    if (trimmed.length > 254) return 'Invalid email';
+  }
+  if (field === 'bio' && trimmed.length > 1000) return 'Invalid bio';
+  return null;
+};
+
+const profileSelect = 'id, username, role, display_name, email, bio, created_at, updated_at';
+
+app.get('/api/profile', requireAuth, async (req, res, next) => {
+  try {
+    const {rows} = await pool.query(
+      `SELECT ${profileSelect} FROM users WHERE id = $1`,
+      [req.user.id],
+    );
+    if (!rows[0]) return sendError(res, 404, 'User not found');
+    return res.json({profile: rows[0]});
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/profile', requireAuth, async (req, res, next) => {
+  try {
+    const updates = PROFILE_FIELDS.filter((field) => Object.prototype.hasOwnProperty.call(req.body, field));
+    if (!updates.length) return sendError(res, 400, 'No fields to update');
+
+    for (const field of updates) {
+      const validationError = validateProfileField(field, req.body[field]);
+      if (validationError) return sendError(res, 400, validationError);
+    }
+
+    const values = updates.map((field) => {
+      const raw = req.body[field];
+      return (raw === null || (typeof raw === 'string' && raw.trim() === '')) ? null : raw.trim();
+    });
+    const assignments = updates.map((field, index) => `${field} = $${index + 1}`).join(', ');
+    values.push(req.user.id);
+
+    const {rows} = await pool.query(
+      `UPDATE users SET ${assignments}, updated_at = now()
+       WHERE id = $${values.length} RETURNING ${profileSelect}`,
+      values,
+    );
+    if (!rows[0]) return sendError(res, 404, 'User not found');
+    return res.json({profile: rows[0]});
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.get('/api/collections', async (req, res, next) => {
   try {
     const {rows} = await pool.query(

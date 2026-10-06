@@ -10,6 +10,7 @@ const config = {
     login: './src/pages/login/index.js',
     register: './src/pages/register/index.js',
     logout: './src/pages/logout/index.js',
+    profile: './src/pages/profile/index.js',
   },
   output: {
     // Compile the source files into a bundle.
@@ -65,6 +66,11 @@ const config = {
       template: 'src/pages/logout/index.html',
       filename: 'logout.html',
       chunks: ['runtime', 'logout'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/pages/profile/index.html',
+      filename: 'profile.html',
+      chunks: ['runtime', 'profile'],
     }),
   ],
 };

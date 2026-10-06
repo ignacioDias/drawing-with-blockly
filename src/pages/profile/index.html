@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Profile</title>
+  </head>
+  <body>
+    <div class="top-controls" role="toolbar" aria-label="App controls">
+      <a class="back-link" href="index.html">Back to levels</a>
+      <label class="control-group" for="language-select">
+        <span>Language</span>
+        <select id="language-select">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </label>
+      <button id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+      <a id="auth-link" class="auth-link" href="login.html">Log in</a>
+    </div>
+    <main class="profile-shell">
+      <header class="profile-header">
+        <h1 id="profile-title">My Profile</h1>
+        <p id="profile-subtitle">View and manage your account details.</p>
+      </header>
+      <p id="profile-status" class="profile-status" role="status">Loading profile...</p>
+      <section class="profile-card" aria-label="Account information">
+        <h2 id="account-heading">Account</h2>
+        <dl class="profile-details">
+          <div class="profile-detail">
+            <dt id="username-label">Username</dt>
+            <dd id="profile-username"></dd>
+          </div>
+          <div class="profile-detail">
+            <dt id="role-label">Role</dt>
+            <dd id="profile-role"></dd>
+          </div>
+          <div class="profile-detail">
+            <dt id="member-since-label">Member since</dt>
+            <dd id="profile-member-since"></dd>
+          </div>
+        </dl>
+      </section>
+      <section class="profile-card" aria-label="Editable profile fields">
+        <h2 id="fields-heading">Profile fields</h2>
+        <div class="profile-field" data-field="display_name">
+          <div class="profile-field-row">
+            <span class="profile-field-label" id="display-name-label">Display name</span>
+            <span class="profile-field-value" id="display-name-value">Not set</span>
+            <span class="profile-field-actions">
+              <button class="profile-edit" type="button">Edit</button>
+              <button class="profile-delete" type="button">Delete</button>
+            </span>
+          </div>
+          <form class="profile-field-form" hidden>
+            <input class="profile-field-input" type="text" name="display_name" maxlength="100" autocomplete="off" />
+            <button class="profile-save" type="submit">Save</button>
+            <button class="profile-cancel" type="button">Cancel</button>
+          </form>
+        </div>
+        <div class="profile-field" data-field="email">
+          <div class="profile-field-row">
+            <span class="profile-field-label" id="email-label">Email</span>
+            <span class="profile-field-value" id="email-value">Not set</span>
+            <span class="profile-field-actions">
+              <button class="profile-edit" type="button">Edit</button>
+              <button class="profile-delete" type="button">Delete</button>
+            </span>
+          </div>
+          <form class="profile-field-form" hidden>
+            <input class="profile-field-input" type="email" name="email" maxlength="254" autocomplete="off" />
+            <button class="profile-save" type="submit">Save</button>
+            <button class="profile-cancel" type="button">Cancel</button>
+          </form>
+        </div>
+        <div class="profile-field" data-field="bio">
+          <div class="profile-field-row">
+            <span class="profile-field-label" id="bio-label">Bio</span>
+            <span class="profile-field-value" id="bio-value">Not set</span>
+            <span class="profile-field-actions">
+              <button class="profile-edit" type="button">Edit</button>
+              <button class="profile-delete" type="button">Delete</button>
+            </span>
+          </div>
+          <form class="profile-field-form" hidden>
+            <textarea class="profile-field-input" name="bio" maxlength="1000" rows="3"></textarea>
+            <button class="profile-save" type="submit">Save</button>
+            <button class="profile-cancel" type="button">Cancel</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

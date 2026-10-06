@@ -77,6 +77,9 @@ Authentication endpoints:
 - `POST /api/auth/login` with the same body
 - `POST /api/auth/logout` (authenticated)
 - `GET /api/auth/me` (authenticated)
+- `GET /api/profile` (authenticated) returns the current user's profile
+- `PUT /api/profile` (authenticated) updates `display_name`, `email`, or `bio`;
+  send `null` (or an empty string) for a field to clear it
 
 Registration and login set an `HttpOnly` session cookie. Passwords must be at
 least eight characters. New users always receive the `normal` role.
@@ -145,14 +148,15 @@ hash it before storing it, and send the raw token only in a secure,
 - `src/pages/login`: sign-in page
 - `src/pages/register`: account creation page
 - `src/pages/logout`: session logout page
+- `src/pages/profile`: account profile page
 - `src/features/board`: board state and drawing operations
 - `src/shared`: API client, authentication navigation, preferences, translations, toolbox, and serialization
 - `db/init`: PostgreSQL initialization and migrations
 
-Webpack generates five pages: `index.html`, `drawing.html`, `login.html`,
-`register.html`, and `logout.html`. The home and drawing pages fetch published
-level data from the API, and the authentication pages use the session-cookie
-endpoints described above.
+Webpack generates six pages: `index.html`, `drawing.html`, `login.html`,
+`register.html`, `logout.html`, and `profile.html`. The home and drawing pages
+fetch published level data from the API, and the authentication pages use the
+session-cookie endpoints described above.
 
 Blockly workspace state, theme, and language preferences are still persisted in
 browser `localStorage`. Workspace progress is not currently stored on the

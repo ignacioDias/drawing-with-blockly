@@ -94,10 +94,14 @@ if (!testDatabaseUrl) {
       ['PUT', '/api/levels/1'],
       ['DELETE', '/api/levels/1'],
       ['POST', '/api/collections'],
+      ['PUT', '/api/profile'],
     ]) {
       response = await request(path, {method, body: JSON.stringify({})});
       assert.equal(response.status, 401);
     }
+
+    response = await request('/api/profile');
+    assert.equal(response.status, 401);
   });
 
   test('rejects duplicate registration and invalid login', async () => {
@@ -134,6 +138,46 @@ if (!testDatabaseUrl) {
       });
       assert.equal(levelResponse.status, 403);
     }
+  });
+
+  test('views and updates the authenticated profile', async () => {
+    let response = await request('/api/profile');
+    assert.equal(response.status, 200);
+    const initial = (await json(response)).profile;
+    assert.equal(initial.username, username);
+    assert.equal(initial.role, 'normal');
+    assert.equal(initial.display_name, null);
+    assert.equal(initial.email, null);
+    assert.equal(initial.bio, null);
+
+    response = await request('/api/profile', {
+      method: 'PUT',
+      body: JSON.stringify({display_name: 'Alice', email: 'alice@example.com', bio: 'Hello'}),
+    });
+    assert.equal(response.status, 200);
+    const updated = (await json(response)).profile;
+    assert.equal(updated.display_name, 'Alice');
+    assert.equal(updated.email, 'alice@example.com');
+    assert.equal(updated.bio, 'Hello');
+
+    response = await request('/api/profile', {
+      method: 'PUT',
+      body: JSON.stringify({email: null}),
+    });
+    assert.equal(response.status, 200);
+    assert.equal((await json(response)).profile.email, null);
+
+    response = await request('/api/profile', {
+      method: 'PUT',
+      body: JSON.stringify({email: 'not-an-email'}),
+    });
+    assert.equal(response.status, 400);
+
+    response = await request('/api/profile', {
+      method: 'PUT',
+      body: JSON.stringify({}),
+    });
+    assert.equal(response.status, 400);
   });
 
   test('admin can create, update, and delete a level', async () => {

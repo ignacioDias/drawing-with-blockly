@@ -43,3 +43,16 @@ export const login = (credentials) => request('/api/auth/login', {
 export const getCurrentUser = () => request('/api/auth/me');
 
 export const logout = () => request('/api/auth/logout', {method: 'POST'});
+
+export const getProfile = async () => {
+  const {profile} = await request('/api/profile');
+  return profile;
+};
+
+export const updateProfile = async (fields) => {
+  const {profile} = await request('/api/profile', {
+    method: 'PUT',
+    body: JSON.stringify(fields),
+  });
+  return profile;
+};

@@ -10,7 +10,7 @@ import {
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
 import {getCollections} from '../../shared/api';
-import {setupAuthLink} from '../../shared/auth-navigation';
+import {setupAuthNavigation} from '../../shared/auth-navigation';
 
 const collectionId = new URLSearchParams(window.location.search).get('id');
 const levelGrid = document.getElementById('level-grid');
@@ -19,6 +19,7 @@ const collectionTitle = document.getElementById('collection-title');
 const collectionDescription = document.getElementById('collection-description');
 const themeToggle = document.getElementById('theme-toggle');
 const authLink = document.getElementById('auth-link');
+const profileLink = document.getElementById('profile-link');
 const languageSelect = document.getElementById('language-select');
 const languageLabel = document.querySelector('.control-group span');
 const backLink = document.querySelector('.back-link');
@@ -26,7 +27,10 @@ const backLink = document.querySelector('.back-link');
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
 let collection = null;
-const renderAuthLink = setupAuthLink(authLink, () => translations[currentLanguage].common);
+const renderAuthLink = setupAuthNavigation(
+  {authLink, profileLink},
+  () => translations[currentLanguage].common,
+);
 
 const localized = (value, language) => value?.[language] || value?.en || '';
 

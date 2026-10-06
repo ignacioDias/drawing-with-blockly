@@ -22,7 +22,7 @@ import {
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
 import {getLevel} from '../../shared/api';
-import {setupAuthLink} from '../../shared/auth-navigation';
+import {setupAuthNavigation} from '../../shared/auth-navigation';
 import './styles.css';
 
 const levelParams = new URLSearchParams(window.location.search);
@@ -50,6 +50,7 @@ const pageTitle = document.getElementById('page-title');
 const languageLabel = document.querySelector('.control-group span');
 const backLink = document.querySelector('.back-link');
 const authLink = document.getElementById('auth-link');
+const profileLink = document.getElementById('profile-link');
 const currentBoardLabel = document.getElementById('current-board-label');
 const targetBoardLabel = document.getElementById('target-board-label');
 const currentBoardSubtitle = document.getElementById('current-board-subtitle');
@@ -59,7 +60,10 @@ runButton.disabled = true;
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
 let loadedLevel = null;
-const renderAuthLink = setupAuthLink(authLink, () => translations[currentLanguage].common);
+const renderAuthLink = setupAuthNavigation(
+  {authLink, profileLink},
+  () => translations[currentLanguage].common,
+);
 
 const localized = (value, language) => value?.[language] || value?.en || '';
 
