@@ -6,5 +6,7 @@ dar funciones ya hechas al usuario
 CRUD dese la interfaz
 los usuarios comunes pueden crear collecciones y niveles pero no se guardan en la base de datos
 función para pintar aleatoriamente
+exportar e importar niveles con json files
+agregar "clases" estilo classroom, cada clase tiene profes/alumnos -> los profes pueden crear cosas, se pueden mandar archivos a personas de la misma clase
 bloques para ver si choqué una pared
 

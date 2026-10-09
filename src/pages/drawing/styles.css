@@ -185,6 +185,32 @@ html[data-theme="dark"] #theme-toggle {
   text-transform: uppercase;
 }
 
+.tool-button {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  color: var(--canvas-soft);
+  background: var(--carbon);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.tool-button:hover {
+  filter: brightness(1.15);
+}
+
+.tool-button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
 #pageContainer {
   position: relative;
   display: grid;

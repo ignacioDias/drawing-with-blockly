@@ -253,7 +253,8 @@ app.get('/api/collections', optionalAuth, async (req, res, next) => {
                     'starting_row', l.starting_row,
                     'starting_column', l.starting_column,
                     'validation_config', l.validation_config,
-                    'collection_id', l.collection_id
+                    'collection_id', l.collection_id,
+                    'is_published', l.is_published
                   ) ORDER BY l.sort_order
                 ) FILTER (WHERE l.id IS NOT NULL),
                 '[]'::jsonb

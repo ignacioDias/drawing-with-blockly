@@ -23,6 +23,7 @@ import {
 import {translations} from '../../shared/translations';
 import {getLevel, completeLevel, getCurrentUser} from '../../shared/api';
 import {setupAuthNavigation} from '../../shared/auth-navigation';
+import {buildLevelFile, downloadJson, slugify} from '../../shared/level-io';
 import './styles.css';
 
 const levelParams = new URLSearchParams(window.location.search);
@@ -46,6 +47,7 @@ const blocklyDiv = document.getElementById('blocklyDiv');
 const runButton = document.getElementById('run-button');
 const clearBoardButton = document.getElementById('clear-board-button');
 const clearBlocksButton = document.getElementById('clear-blocks-button');
+const exportLevelButton = document.getElementById('export-level');
 const themeToggle = document.getElementById('theme-toggle');
 const languageSelect = document.getElementById('language-select');
 const pageTitle = document.getElementById('page-title');
@@ -76,6 +78,24 @@ const pickBoardPair = (level) => {
     return level.board_pairs[Math.floor(Math.random() * level.board_pairs.length)];
   }
   return {starting_board: level.starting_board, target_board: level.target_board};
+};
+
+const exportLevel = () => {
+  if (!loadedLevel) return;
+  const level = {
+    title: loadedLevel.title,
+    description: loadedLevel.description,
+    difficulty: loadedLevel.difficulty,
+    is_published: true,
+    starting_row: loadedLevel.starting_row,
+    starting_column: loadedLevel.starting_column,
+    validation_config: loadedLevel.validation_config,
+    board_pairs: Array.isArray(loadedLevel.board_pairs) && loadedLevel.board_pairs.length > 0
+      ? loadedLevel.board_pairs
+      : [{starting_board: loadedLevel.starting_board, target_board: loadedLevel.target_board}],
+  };
+  const name = slugify(localized(loadedLevel.title, 'en')) || loadedLevel.slug || 'level';
+  downloadJson(`${name}.json`, buildLevelFile(level));
 };
 
 const updatePageTitle = () => {
@@ -120,6 +140,7 @@ const applyLanguage = () => {
   languageSelect.querySelector('option[value="es"]').textContent = copy.common.languageOptionEs;
   languageSelect.value = currentLanguage;
   backLink.textContent = copy.common.backToLevels;
+  exportLevelButton.textContent = copy.common.exportShort;
   currentBoardLabel.textContent = copy.drawing.currentBoard;
   targetBoardLabel.textContent = copy.drawing.targetBoard;
   currentBoardSubtitle.textContent = copy.drawing.currentBoardSubtitle;
@@ -205,6 +226,8 @@ clearBlocksButton.addEventListener('click', () => {
   ws.clear();
 });
 
+exportLevelButton.addEventListener('click', exportLevel);
+
 themeToggle.addEventListener('click', () => {
   currentTheme = currentTheme === THEMES.dark ? THEMES.light : THEMES.dark;
   writeTheme(currentTheme);
@@ -231,6 +254,7 @@ getLevel(currentLevel)
     });
     Board.setupTarget({targetBoard: activePair.target_board});
     runButton.disabled = false;
+    exportLevelButton.disabled = false;
     setLevelStatus('');
   })
   .catch(() => {

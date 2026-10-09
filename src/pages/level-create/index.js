@@ -17,6 +17,13 @@ import {
 import {translations} from '../../shared/translations';
 import {createLevel, getCurrentUser} from '../../shared/api';
 import {setupAuthNavigation} from '../../shared/auth-navigation';
+import {
+  buildLevelFile,
+  downloadJson,
+  extractLevels,
+  localizedText,
+  readFileAsJson,
+} from '../../shared/level-io';
 import './styles.css';
 
 const EMPTY_BOARD = {rows: 20, columns: 20, cells: []};
@@ -45,6 +52,9 @@ const pairsLabel = document.getElementById('pairs-label');
 const pairSelector = document.getElementById('pair-selector');
 const modeStartingButton = document.getElementById('mode-starting');
 const modeTargetButton = document.getElementById('mode-target');
+const exportLevelButton = document.getElementById('export-level');
+const importLevelButton = document.getElementById('import-level');
+const importFileInput = document.getElementById('import-file');
 const boardLabel = document.getElementById('board-label');
 const runButton = document.getElementById('run-button');
 const clearBoardButton = document.getElementById('clear-board-button');
@@ -136,7 +146,8 @@ const loadCurrentState = () => {
   } finally {
     Blockly.Events.enable();
   }
-  Board.setup({startingBoard: EMPTY_BOARD, startingRow: 0, startingColumn: 0});
+  const board = (boards[currentPair] || {})[mode] || EMPTY_BOARD;
+  Board.setup({startingBoard: board, startingRow: 0, startingColumn: 0});
   processCode();
 };
 
@@ -218,6 +229,8 @@ const applyLanguage = () => {
   submit.textContent = copy.submit;
   modeStartingButton.textContent = copy.startingBoard;
   modeTargetButton.textContent = copy.targetBoard;
+  exportLevelButton.textContent = common.exportLevel;
+  importLevelButton.textContent = common.importLevel;
   renderAuthLink();
   updateModeUI();
   renderPairSelector();
@@ -226,6 +239,72 @@ const applyLanguage = () => {
 };
 
 const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+const gatherLevel = () => {
+  saveCurrentState();
+  const pairs = [];
+  for (let i = 0; i < pairCount; i++) {
+    ensurePair(i);
+    pairs.push({
+      starting_board: boards[i].starting || EMPTY_BOARD,
+      target_board: boards[i].target || EMPTY_BOARD,
+    });
+  }
+  return {
+    title: titleInput.value.trim(),
+    description: descriptionInput.value.trim(),
+    difficulty: Number(difficultyInput.value),
+    is_published: publishedInput.checked,
+    starting_row: 0,
+    starting_column: 0,
+    validation_config: {type: 'drawing'},
+    board_pairs: pairs,
+  };
+};
+
+const exportLevel = () => {
+  const level = gatherLevel();
+  const name = slugify(level.title) || 'level';
+  downloadJson(`${name}.json`, buildLevelFile(level));
+};
+
+const importLevel = async (file) => {
+  const copy = translations[currentLanguage].levelIO;
+  let levels;
+  try {
+    levels = extractLevels(await readFileAsJson(file));
+  } catch (error) {
+    status.textContent = error.message === 'Invalid JSON file' ? copy.loadError : copy.noLevels;
+    return;
+  }
+
+  const level = levels[0];
+  titleInput.value = localizedText(level.title);
+  descriptionInput.value = localizedText(level.description ?? '');
+  difficultyInput.value = String(Math.min(5, Math.max(1, Math.round(Number(level.difficulty) || 1))));
+  publishedInput.checked = Boolean(level.is_published);
+
+  const pairs = Array.isArray(level.board_pairs) && level.board_pairs.length > 0
+    ? level.board_pairs
+    : [{starting_board: level.starting_board, target_board: level.target_board}];
+
+  boards.length = 0;
+  workspaceStates.length = 0;
+  pairCount = Math.min(50, Math.max(1, pairs.length));
+  pairs.forEach((pair, i) => {
+    ensurePair(i);
+    boards[i].starting = pair.starting_board || EMPTY_BOARD;
+    boards[i].target = pair.target_board || EMPTY_BOARD;
+  });
+  currentPair = 0;
+  mode = 'starting';
+
+  pairsInput.value = String(pairCount);
+  updateModeUI();
+  renderPairSelector();
+  loadCurrentState();
+  status.textContent = copy.loadSuccess;
+};
 
 const captureBoard = () => {
   ensurePair(currentPair);
@@ -248,6 +327,14 @@ clearBoardButton.addEventListener('click', () => {
 
 modeStartingButton.addEventListener('click', () => switchMode('starting'));
 modeTargetButton.addEventListener('click', () => switchMode('target'));
+
+exportLevelButton.addEventListener('click', exportLevel);
+importLevelButton.addEventListener('click', () => importFileInput.click());
+importFileInput.addEventListener('change', () => {
+  const [file] = importFileInput.files;
+  if (file) importLevel(file);
+  importFileInput.value = '';
+});
 
 pairsInput.addEventListener('change', () => setPairCount(pairsInput.value));
 
