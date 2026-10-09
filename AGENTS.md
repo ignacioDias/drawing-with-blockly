@@ -16,7 +16,8 @@
 ## Structure
 
 - Webpack has nine entrypoints, one per page under `src/pages/*/index.js` (`home`, `collection`, `drawing`, `login`, `register`, `logout`, `profile`, `collection-create`, `level-create`), each producing a matching HTML page.
-- Blockly workspace state and user preferences currently live in browser `localStorage`. Level data and authentication state are loaded through the API client in `src/shared/api.js`; pages fetch from the API rather than using static data.
+- Blockly workspace state and user preferences live in browser `localStorage`. Level data and authentication state are loaded through the API client in `src/shared/api.js`; pages fetch from the API rather than using static data.
+- Non-admin users can create collections/levels that are stored only in `localStorage` (temporary). `src/shared/local-store.js` owns that cache, `src/shared/data.js` merges API + local data (`loadCollections`, `loadLevel`), and `src/shared/level-io.js` provides level export/import helpers. Temporary items are flagged `is_temporary` and rendered with a teal dashed border + badge.
 - `server/index.js` owns all PostgreSQL access and authentication/level/collection/profile endpoints. Browser code must not connect directly to PostgreSQL.
 - `db/init/` defines the levels, users, sessions, collections, and profile schema and seed data. Level boards are sparse 20x20 JSON objects.
 

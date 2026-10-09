@@ -9,7 +9,9 @@ import {
   writeTheme,
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
-import {createLevel, getCollections, getCurrentUser} from '../../shared/api';
+import {createLevel, getCurrentUser} from '../../shared/api';
+import {loadCollections} from '../../shared/data';
+import {createLocalLevel, isLocalId} from '../../shared/local-store';
 import {setupAuthNavigation} from '../../shared/auth-navigation';
 import {
   buildImportLevel,
@@ -25,10 +27,11 @@ const levelGrid = document.getElementById('level-grid');
 const levelStatus = document.getElementById('level-status');
 const collectionTitle = document.getElementById('collection-title');
 const collectionDescription = document.getElementById('collection-description');
+const collectionTemporary = document.getElementById('collection-temporary');
 const themeToggle = document.getElementById('theme-toggle');
 const authLink = document.getElementById('auth-link');
 const profileLink = document.getElementById('profile-link');
-const adminLink = document.getElementById('admin-link');
+const createLink = document.getElementById('create-link');
 const exportLevelsButton = document.getElementById('export-levels');
 const importLevelsButton = document.getElementById('import-levels');
 const importFileInput = document.getElementById('import-file');
@@ -41,12 +44,14 @@ let currentTheme = readTheme();
 let collection = null;
 let completedLevelIds = [];
 let isAdmin = false;
+let isAuthenticated = false;
+const isLocalCollection = isLocalId(collectionId);
 const renderAuthLink = setupAuthNavigation(
-  {authLink, profileLink, adminLink},
+  {authLink, profileLink},
   () => translations[currentLanguage].common,
 );
 
-adminLink.href = `level-create.html?collection=${encodeURIComponent(collectionId || '')}`;
+createLink.href = `level-create.html?collection=${encodeURIComponent(collectionId || '')}`;
 
 const localized = (value, language) => value?.[language] || value?.en || '';
 
@@ -56,6 +61,7 @@ const createLevelCard = (level, copy) => {
   card.type = 'button';
   card.className = 'level-card';
   if (completedLevelIds.includes(level.id)) card.classList.add('completed');
+  if (level.is_temporary) card.classList.add('temporary');
   card.setAttribute('aria-label', `${text.levelLabel} ${level.sort_order}`);
 
   const badge = document.createElement('span');
@@ -65,6 +71,14 @@ const createLevelCard = (level, copy) => {
   caption.className = 'level-caption';
   caption.textContent = localized(level.title, currentLanguage) || text.openWorkspace;
   card.append(badge, caption);
+
+  if (level.is_temporary) {
+    const temporaryBadge = document.createElement('span');
+    temporaryBadge.className = 'temporary-badge';
+    temporaryBadge.textContent = copy.common.temporary;
+    card.append(temporaryBadge);
+  }
+
   card.addEventListener('click', () => {
     window.location.href = `drawing.html?level=${encodeURIComponent(String(level.id))}`;
   });
@@ -75,6 +89,8 @@ const renderCollection = () => {
   const copy = translations[currentLanguage];
   collectionTitle.textContent = collection?.name || copy.home.title;
   collectionDescription.textContent = collection?.description || '';
+  collectionTemporary.hidden = !collection?.is_temporary;
+  collectionTemporary.textContent = copy.common.temporary;
   levelGrid.innerHTML = '';
   collection?.levels.forEach((level) => levelGrid.appendChild(createLevelCard(level, copy)));
   levelStatus.textContent = collection ? '' : copy.home.loading;
@@ -115,8 +131,18 @@ const importLevels = async (file) => {
 
   let imported = 0;
   for (let i = 0; i < levels.length; i++) {
+    const core = buildImportLevel(levels[i]);
     try {
-      await createLevel(buildImportLevel(levels[i], collectionId, i));
+      if (isAdmin) {
+        await createLevel({
+          ...core,
+          slug: `${slugify(localized(core.title, 'en')) || 'level'}-${Date.now()}-${i + 1}`,
+          sort_order: Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000000) + i,
+          collection_id: Number(collectionId),
+        });
+      } else {
+        createLocalLevel({...core, collection_id: collectionId});
+      }
       imported += 1;
     } catch (error) {
       // Continue with the remaining levels.
@@ -139,7 +165,7 @@ const importLevels = async (file) => {
 };
 
 const loadCollection = () => {
-  getCollections()
+  loadCollections()
     .then((result) => {
       const collections = result.collections;
       completedLevelIds = result.completed_level_ids || [];
@@ -170,7 +196,9 @@ const applyLanguage = () => {
   languageSelect.value = currentLanguage;
   exportLevelsButton.textContent = copy.common.exportLevels;
   importLevelsButton.textContent = copy.common.importLevels;
-  importLevelsButton.hidden = !isAdmin;
+  const canCreate = isAuthenticated && (isAdmin || isLocalCollection);
+  createLink.hidden = !canCreate;
+  importLevelsButton.hidden = !canCreate;
   renderAuthLink();
   renderCollection();
   applyTheme();
@@ -200,6 +228,7 @@ applyLanguage();
 
 getCurrentUser()
   .then(({user}) => {
+    isAuthenticated = true;
     isAdmin = user.role === 'admin';
     applyLanguage();
   })

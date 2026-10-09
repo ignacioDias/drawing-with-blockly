@@ -18,6 +18,7 @@ export const translations = {
       exportLevel: 'Export level',
       importLevel: 'Import level',
       exportShort: 'Export',
+      temporary: 'Temporary',
     },
     levelIO: {
       exportEmpty: 'There are no levels to export.',
@@ -196,6 +197,7 @@ export const translations = {
       exportLevel: 'Exportar nivel',
       importLevel: 'Importar nivel',
       exportShort: 'Exportar',
+      temporary: 'Temporal',
     },
     levelIO: {
       exportEmpty: 'No hay niveles para exportar.',

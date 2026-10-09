@@ -1,6 +1,6 @@
 import {getCurrentUser} from './api';
 
-export const setupAuthNavigation = ({authLink, profileLink, adminLink}, getLabels) => {
+export const setupAuthNavigation = ({authLink, profileLink, adminLink, createLink}, getLabels) => {
   let isAuthenticated = false;
   let isAdmin = false;
 
@@ -17,6 +17,9 @@ export const setupAuthNavigation = ({authLink, profileLink, adminLink}, getLabel
     }
     if (adminLink) {
       adminLink.hidden = !isAdmin;
+    }
+    if (createLink) {
+      createLink.hidden = !isAuthenticated;
     }
   };
 

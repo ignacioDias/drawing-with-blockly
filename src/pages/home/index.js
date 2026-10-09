@@ -9,7 +9,7 @@ import {
   writeTheme,
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
-import {getCollections} from '../../shared/api';
+import {loadCollections} from '../../shared/data';
 import {setupAuthNavigation} from '../../shared/auth-navigation';
 
 const collectionList = document.getElementById('collection-list');
@@ -17,7 +17,7 @@ const levelStatus = document.getElementById('level-status');
 const themeToggle = document.getElementById('theme-toggle');
 const authLink = document.getElementById('auth-link');
 const profileLink = document.getElementById('profile-link');
-const adminLink = document.getElementById('admin-link');
+const createLink = document.getElementById('create-link');
 const languageSelect = document.getElementById('language-select');
 const languageLabel = document.querySelector('.control-group span');
 const homeTitle = document.getElementById('home-title');
@@ -28,7 +28,7 @@ let currentTheme = readTheme();
 let collections = [];
 let completedLevelIds = [];
 const renderAuthLink = setupAuthNavigation(
-  {authLink, profileLink, adminLink},
+  {authLink, profileLink, createLink},
   () => translations[currentLanguage].common,
 );
 
@@ -43,12 +43,21 @@ const createCollection = (collection) => {
   const levels = collection.levels || [];
   const allCompleted = levels.length > 0 && levels.every((level) => completedLevelIds.includes(level.id));
   if (allCompleted) card.classList.add('completed');
+  if (collection.is_temporary) card.classList.add('temporary');
 
   const heading = document.createElement('h2');
   heading.textContent = collection.name;
   const description = document.createElement('p');
   description.textContent = collection.description;
   card.append(heading, description);
+
+  if (collection.is_temporary) {
+    const badge = document.createElement('span');
+    badge.className = 'temporary-badge';
+    badge.textContent = translations[currentLanguage].common.temporary;
+    card.append(badge);
+  }
+
   card.addEventListener('click', () => {
     window.location.href = `collection.html?id=${encodeURIComponent(String(collection.id))}`;
   });
@@ -97,7 +106,7 @@ languageSelect.addEventListener('change', () => {
 
 applyLanguage();
 
-getCollections()
+loadCollections()
   .then((result) => {
     collections = result.collections;
     completedLevelIds = result.completed_level_ids || [];

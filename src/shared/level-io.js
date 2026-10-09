@@ -73,7 +73,7 @@ export const extractLevels = (data) => {
   return clean;
 };
 
-export const buildImportLevel = (level, collectionId, index) => {
+export const buildImportLevel = (level) => {
   const title = asLocalizedObject(level.title);
   const description = asLocalizedObject(level.description ?? '');
   const difficulty = Math.min(5, Math.max(1, Math.round(Number(level.difficulty) || 1)));
@@ -82,12 +82,9 @@ export const buildImportLevel = (level, collectionId, index) => {
     : [{starting_board: level.starting_board, target_board: level.target_board}];
 
   return {
-    slug: `${slugify(localizedText(title)) || 'level'}-${Date.now()}-${index + 1}`,
     title,
     description,
     difficulty,
-    sort_order: Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000000) + index,
-    collection_id: Number(collectionId),
     board_pairs: boardPairs,
     starting_row: Number(level.starting_row) || 0,
     starting_column: Number(level.starting_column) || 0,

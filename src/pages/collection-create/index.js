@@ -10,6 +10,7 @@ import {
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
 import {createCollection, getCurrentUser} from '../../shared/api';
+import {createLocalCollection} from '../../shared/local-store';
 import {setupAuthNavigation} from '../../shared/auth-navigation';
 
 const themeToggle = document.getElementById('theme-toggle');
@@ -30,6 +31,7 @@ const descriptionInput = document.getElementById('collection-description');
 
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
+let isAdmin = false;
 const renderAuthLink = setupAuthNavigation(
   {authLink, profileLink},
   () => translations[currentLanguage].common,
@@ -78,12 +80,7 @@ applyLanguage();
 
 getCurrentUser()
   .then(({user}) => {
-    if (user.role !== 'admin') {
-      status.textContent = translations[currentLanguage].create.collection.notAdmin;
-      window.setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1500);
-    }
+    isAdmin = user.role === 'admin';
   })
   .catch(() => {
     window.location.href = 'login.html';
@@ -93,11 +90,16 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
   status.textContent = '';
   submit.disabled = true;
+  const fields = {
+    name: nameInput.value.trim(),
+    description: descriptionInput.value.trim(),
+  };
   try {
-    await createCollection({
-      name: nameInput.value.trim(),
-      description: descriptionInput.value.trim(),
-    });
+    if (isAdmin) {
+      await createCollection(fields);
+    } else {
+      createLocalCollection(fields);
+    }
     window.location.href = 'index.html';
   } catch (error) {
     status.textContent = error.message || translations[currentLanguage].create.collection.error;

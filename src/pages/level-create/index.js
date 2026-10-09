@@ -17,6 +17,7 @@ import {
 import {translations} from '../../shared/translations';
 import {createLevel, getCurrentUser} from '../../shared/api';
 import {setupAuthNavigation} from '../../shared/auth-navigation';
+import {createLocalLevel, isLocalId} from '../../shared/local-store';
 import {
   buildLevelFile,
   downloadJson,
@@ -64,6 +65,7 @@ const blocklyDiv = document.getElementById('blocklyDiv');
 
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
+let isAdmin = false;
 let mode = 'starting';
 let currentPair = 0;
 let pairCount = 1;
@@ -355,12 +357,9 @@ form.addEventListener('submit', async (event) => {
   }
 
   const level = {
-    slug: `${slugify(title) || 'level'}-${Date.now()}`,
     title: {en: title},
     description: {en: descriptionInput.value.trim()},
     difficulty: Number(difficultyInput.value),
-    sort_order: Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000000),
-    collection_id: Number(collectionId),
     board_pairs: pairs,
     starting_row: 0,
     starting_column: 0,
@@ -369,7 +368,16 @@ form.addEventListener('submit', async (event) => {
   };
 
   try {
-    await createLevel(level);
+    if (isAdmin) {
+      await createLevel({
+        ...level,
+        slug: `${slugify(title) || 'level'}-${Date.now()}`,
+        sort_order: Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000000),
+        collection_id: Number(collectionId),
+      });
+    } else {
+      createLocalLevel({...level, collection_id: collectionId});
+    }
     window.location.href = `collection.html?id=${encodeURIComponent(collectionId)}`;
   } catch (error) {
     status.textContent = error.message || translations[currentLanguage].create.level.error;
@@ -393,7 +401,8 @@ applyLanguage();
 
 getCurrentUser()
   .then(({user}) => {
-    if (user.role !== 'admin') {
+    isAdmin = user.role === 'admin';
+    if (!isAdmin && !isLocalId(collectionId)) {
       status.textContent = translations[currentLanguage].create.level.notAdmin;
       window.setTimeout(() => {
         window.location.href = `collection.html?id=${encodeURIComponent(collectionId)}`;

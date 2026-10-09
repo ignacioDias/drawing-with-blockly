@@ -1,6 +1,6 @@
 # Drawing With Blockly
 
-A multi-page Blockly + p5.js app where users pick a published level, then solve drawing challenges by programming with visual blocks. The frontend loads levels and authentication state through the Express API.
+A multi-page Blockly + p5.js app where users pick a published level, then solve drawing challenges by programming with visual blocks. The frontend loads levels and authentication state through the Express API. Admins create persistent collections and levels; any signed-in user can create temporary ones saved in the browser, and levels can be exported to and imported from JSON files.
 
 ## Quick Start
 
@@ -108,12 +108,39 @@ Collection and level mutation endpoints require an authenticated admin:
 - `PUT /api/levels/:id` partially updates a level
 - `DELETE /api/levels/:id` deletes a level
 
+The frontend additionally lets non-admin users create collections and levels,
+but those are stored in the browser's `localStorage` rather than the database
+(see "Temporary (Local) Collections and Levels").
+
 Every level must belong to exactly one collection through `collection_id`.
 
 Level requests use the database fields `slug`, `title`, `description`,
 `difficulty`, `sort_order`, `starting_board`, `target_board`, `starting_row`,
 `starting_column`, `validation_config`, and `is_published`. Board objects must
 contain `rows: 20`, `columns: 20`, and a `cells` array.
+
+## Temporary (Local) Collections and Levels
+
+Any signed-in user can create collections and levels. For admins they are saved
+to PostgreSQL as usual; for non-admin users they are saved only in the browser's
+`localStorage` and are therefore temporary. Temporary collections and levels are
+rendered with a dashed teal border and a "Temporary" badge. Non-admin users can
+only add levels to their own temporary collections, and temporary levels cannot
+be completed for points.
+
+## Export and Import
+
+Levels can be exported to and imported from JSON files:
+
+- The collection page has "Export levels" (all levels in that collection) and
+  "Import levels" buttons.
+- The drawing page has an "Export" button for the currently open level.
+- The level editor can export the current draft or import a JSON file to
+  populate the form.
+
+Importing saves to the database for admins and to `localStorage` for non-admin
+users. Temporary content can be exported and imported just like persistent
+content.
 
 The API uses parameterized SQL, scrypt password hashes, SHA-256 session-token
 hashes, and secure `HttpOnly` cookies in production. Expired or revoked
@@ -151,19 +178,21 @@ hash it before storing it, and send the raw token only in a secure,
 - `src/pages/register`: account creation page
 - `src/pages/logout`: session logout page
 - `src/pages/profile`: account profile page
-- `src/pages/collection-create`: admin collection creation page
-- `src/pages/level-create`: admin level creation page (Blockly + p5 board editor)
+- `src/pages/collection-create`: collection creation page
+- `src/pages/level-create`: level creation page (Blockly + p5 board editor)
 - `src/features/board`: board state and drawing operations
-- `src/shared`: API client, authentication navigation, preferences, translations, toolbox, and serialization
+- `src/shared`: API client, authentication navigation, preferences, translations, toolbox, serialization, local cache (`local-store.js`), merged data access (`data.js`), and level export/import (`level-io.js`)
 - `db/init`: PostgreSQL initialization and migrations
 
 Webpack generates nine pages: `index.html`, `collection.html`, `drawing.html`,
 `login.html`, `register.html`, `logout.html`, `profile.html`,
-`collection-create.html`, and `level-create.html`. The home and drawing pages fetch published level data from
-the API, and the authentication pages use the session-cookie endpoints described
-above. Admin users see "+" buttons on the home and collection pages that open
-the collection/level creation pages.
+`collection-create.html`, and `level-create.html`. The home and drawing pages fetch level data from
+the API (merged with any local temporary content), and the authentication pages use the session-cookie endpoints described
+above. Signed-in users see "+" buttons on the home and collection pages that
+open the collection/level creation pages; admins save to the database while
+non-admin users save to `localStorage`.
 
-Blockly workspace state, theme, and language preferences are still persisted in
-browser `localStorage`. Workspace progress is not currently stored on the
+Blockly workspace state, theme, and language preferences are persisted in
+browser `localStorage`, along with any temporary collections and levels created
+by non-admin users. Workspace progress is not currently stored on the
 server.

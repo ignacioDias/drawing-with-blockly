@@ -21,7 +21,8 @@ import {
   writeTheme,
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
-import {getLevel, completeLevel, getCurrentUser} from '../../shared/api';
+import {completeLevel, getCurrentUser} from '../../shared/api';
+import {loadLevel} from '../../shared/data';
 import {setupAuthNavigation} from '../../shared/auth-navigation';
 import {buildLevelFile, downloadJson, slugify} from '../../shared/level-io';
 import './styles.css';
@@ -86,7 +87,7 @@ const exportLevel = () => {
     title: loadedLevel.title,
     description: loadedLevel.description,
     difficulty: loadedLevel.difficulty,
-    is_published: true,
+    is_published: loadedLevel.is_published ?? true,
     starting_row: loadedLevel.starting_row,
     starting_column: loadedLevel.starting_column,
     validation_config: loadedLevel.validation_config,
@@ -201,6 +202,10 @@ runButton.addEventListener('click', async () => {
   if (!loadedLevel || !activePair || !Board.isSolved(activePair.target_board)) return;
 
   const copy = translations[currentLanguage].drawing;
+  if (loadedLevel.is_temporary) {
+    window.alert(copy.levelComplete);
+    return;
+  }
   if (!currentUser) {
     window.alert(copy.loginRequired);
     return;
@@ -242,7 +247,7 @@ languageSelect.addEventListener('change', () => {
 
 applyLanguage();
 
-getLevel(currentLevel)
+loadLevel(currentLevel)
   .then((level) => {
     loadedLevel = level;
     activePair = pickBoardPair(level);

@@ -15,7 +15,7 @@
         </select>
       </label>
       <button id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
-      <a id="admin-link" class="create-link" href="level-create.html" hidden aria-label="Create level">+</a>
+      <a id="create-link" class="create-link" href="level-create.html" hidden aria-label="Create level">+</a>
       <button id="export-levels" class="tool-button" type="button">Export levels</button>
       <button id="import-levels" class="tool-button" type="button" hidden>Import levels</button>
       <input id="import-file" type="file" accept=".json,application/json" hidden />
@@ -25,6 +25,7 @@
     <main class="home-shell collection-page">
       <header class="home-header">
         <h1 id="collection-title">Collection</h1>
+        <span id="collection-temporary" class="temporary-badge" hidden>Temporary</span>
         <p id="collection-description"></p>
       </header>
       <section id="level-grid" class="level-grid" aria-label="Collection levels"></section>
