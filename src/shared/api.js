@@ -21,8 +21,7 @@ export const getLevels = async () => {
 };
 
 export const getCollections = async () => {
-  const {collections} = await request('/api/collections');
-  return collections;
+  return request('/api/collections');
 };
 
 export const createCollection = async (collection) => {
@@ -44,6 +43,13 @@ export const createLevel = async (level) => {
 export const getLevel = async (id) => {
   const {level} = await request(`/api/levels/${encodeURIComponent(String(id))}`);
   return level;
+};
+
+export const completeLevel = async (id) => {
+  const {completion} = await request(`/api/levels/${encodeURIComponent(String(id))}/complete`, {
+    method: 'POST',
+  });
+  return completion;
 };
 
 export const register = (credentials) => request('/api/auth/register', {

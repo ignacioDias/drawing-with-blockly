@@ -21,7 +21,7 @@ import {
   writeTheme,
 } from '../../shared/preferences';
 import {translations} from '../../shared/translations';
-import {getLevel} from '../../shared/api';
+import {getLevel, completeLevel, getCurrentUser} from '../../shared/api';
 import {setupAuthNavigation} from '../../shared/auth-navigation';
 import './styles.css';
 
@@ -63,6 +63,7 @@ let currentLanguage = readLanguage();
 let currentTheme = readTheme();
 let loadedLevel = null;
 let activePair = null;
+let currentUser = null;
 const renderAuthLink = setupAuthNavigation(
   {authLink, profileLink},
   () => translations[currentLanguage].common,
@@ -172,12 +173,27 @@ ws.addChangeListener((e) => {
   processCode();
 });
 
-runButton.addEventListener('click', () => {
+runButton.addEventListener('click', async () => {
   Board.reset();
   const code = javascriptGenerator.workspaceToCode(ws);
   eval(code);
-  if (loadedLevel && activePair && Board.isSolved(activePair.target_board)) {
-    window.alert(translations[currentLanguage].drawing.levelComplete);
+  if (!loadedLevel || !activePair || !Board.isSolved(activePair.target_board)) return;
+
+  const copy = translations[currentLanguage].drawing;
+  if (!currentUser) {
+    window.alert(copy.loginRequired);
+    return;
+  }
+
+  try {
+    const completion = await completeLevel(loadedLevel.id);
+    if (completion.newly_completed) {
+      window.alert(copy.levelCompletePoints.replace('%1', String(completion.points)));
+    } else {
+      window.alert(copy.levelAlreadyCompleted);
+    }
+  } catch (error) {
+    window.alert(error.message);
   }
 });
 
@@ -219,6 +235,14 @@ getLevel(currentLevel)
   })
   .catch(() => {
     setLevelStatus(translations[currentLanguage].drawing.loadError);
+  });
+
+getCurrentUser()
+  .then(({user}) => {
+    currentUser = user;
+  })
+  .catch(() => {
+    currentUser = null;
   });
 
 window.paint = Board.paint;

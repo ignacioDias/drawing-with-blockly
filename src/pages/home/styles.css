@@ -331,6 +331,28 @@ html[data-theme="dark"] #theme-toggle {
   color: var(--chrome-indigo);
 }
 
+.level-card.completed {
+  border-color: #2e7d32;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 25%),
+    #c8e6c9;
+}
+
+.collection-card.completed {
+  border-color: #2e7d32;
+  background: rgba(46, 125, 50, 0.25);
+}
+
+html[data-theme="dark"] .level-card.completed {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 25%),
+    #2e5d32;
+}
+
+html[data-theme="dark"] .collection-card.completed {
+  background: rgba(46, 125, 50, 0.4);
+}
+
 @media (max-width: 640px) {
   .top-controls {
     flex-wrap: wrap;

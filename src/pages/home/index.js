@@ -26,6 +26,7 @@ const homeSubtitle = document.getElementById('home-subtitle');
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
 let collections = [];
+let completedLevelIds = [];
 const renderAuthLink = setupAuthNavigation(
   {authLink, profileLink, adminLink},
   () => translations[currentLanguage].common,
@@ -38,6 +39,10 @@ const createCollection = (collection) => {
   card.type = 'button';
   card.className = 'collection-card';
   card.setAttribute('aria-label', collection.name);
+
+  const levels = collection.levels || [];
+  const allCompleted = levels.length > 0 && levels.every((level) => completedLevelIds.includes(level.id));
+  if (allCompleted) card.classList.add('completed');
 
   const heading = document.createElement('h2');
   heading.textContent = collection.name;
@@ -93,8 +98,9 @@ languageSelect.addEventListener('change', () => {
 applyLanguage();
 
 getCollections()
-  .then((loadedCollections) => {
-    collections = loadedCollections;
+  .then((result) => {
+    collections = result.collections;
+    completedLevelIds = result.completed_level_ids || [];
     applyLanguage();
   })
   .catch(() => {

@@ -28,6 +28,7 @@ const backLink = document.querySelector('.back-link');
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
 let collection = null;
+let completedLevelIds = [];
 const renderAuthLink = setupAuthNavigation(
   {authLink, profileLink, adminLink},
   () => translations[currentLanguage].common,
@@ -41,6 +42,7 @@ const createLevelCard = (level, text) => {
   const card = document.createElement('button');
   card.type = 'button';
   card.className = 'level-card';
+  if (completedLevelIds.includes(level.id)) card.classList.add('completed');
   card.setAttribute('aria-label', `${text.levelLabel} ${level.sort_order}`);
 
   const badge = document.createElement('span');
@@ -101,7 +103,9 @@ languageSelect.addEventListener('change', () => {
 applyLanguage();
 
 getCollections()
-  .then((collections) => {
+  .then((result) => {
+    const collections = result.collections;
+    completedLevelIds = result.completed_level_ids || [];
     collection = collections.find((item) => String(item.id) === String(collectionId)) || null;
     if (!collection) throw new Error('Collection not found');
     applyLanguage();

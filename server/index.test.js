@@ -180,6 +180,24 @@ if (!testDatabaseUrl) {
     assert.equal(response.status, 400);
   });
 
+  test('awards points only once per completed level', async () => {
+    let response = await request('/api/levels/1/complete', {method: 'POST'});
+    assert.equal(response.status, 200);
+    let completion = (await json(response)).completion;
+    assert.equal(completion.newly_completed, true);
+    assert.equal(completion.points, 100);
+
+    response = await request('/api/levels/1/complete', {method: 'POST'});
+    assert.equal(response.status, 200);
+    completion = (await json(response)).completion;
+    assert.equal(completion.newly_completed, false);
+    assert.equal(completion.points, 0);
+
+    response = await request('/api/profile');
+    assert.equal(response.status, 200);
+    assert.equal((await json(response)).profile.total_points, 100);
+  });
+
   test('admin can create, update, and delete a level', async () => {
     await pool.query('UPDATE users SET role = \'admin\' WHERE username = $1', [username]);
 

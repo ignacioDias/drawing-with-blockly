@@ -24,9 +24,11 @@ const fieldsHeading = document.getElementById('fields-heading');
 const usernameLabel = document.getElementById('username-label');
 const roleLabel = document.getElementById('role-label');
 const memberSinceLabel = document.getElementById('member-since-label');
+const pointsLabel = document.getElementById('points-label');
 const profileUsername = document.getElementById('profile-username');
 const profileRole = document.getElementById('profile-role');
 const profileMemberSince = document.getElementById('profile-member-since');
+const profilePoints = document.getElementById('profile-points');
 const profileStatus = document.getElementById('profile-status');
 
 let currentLanguage = readLanguage();
@@ -79,6 +81,7 @@ const renderProfile = () => {
   profileMemberSince.textContent = profile
     ? new Date(profile.created_at).toLocaleDateString(currentLanguage)
     : '';
+  profilePoints.textContent = profile ? String(profile.total_points ?? 0) : '0';
 
   fields.forEach((field) => {
     field.label.textContent = copy[field.labelKey];
@@ -106,6 +109,7 @@ const applyLanguage = () => {
   usernameLabel.textContent = copy.profile.username;
   roleLabel.textContent = copy.profile.role;
   memberSinceLabel.textContent = copy.profile.memberSince;
+  pointsLabel.textContent = copy.profile.points;
   if (!profile) profileStatus.textContent = copy.profile.loading;
   renderAuthLink();
   renderProfile();

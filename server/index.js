@@ -89,6 +89,29 @@ const requireAdmin = (req, res, next) => {
   return next();
 };
 
+const optionalAuth = async (req, res, next) => {
+  try {
+    const token = getCookie(req, sessionCookie);
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+    const {rows} = await pool.query(
+      `SELECT u.id, u.username, u.role
+       FROM sessions s
+       JOIN users u ON u.id = s.user_id
+       WHERE s.token_hash = $1
+         AND s.revoked_at IS NULL
+         AND s.expires_at > now()`,
+      [hashSessionToken(token)],
+    );
+    req.user = rows[0] || null;
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const validCredentials = (body) => (
   typeof body?.username === 'string' &&
   body.username.trim() === body.username &&
@@ -164,6 +187,14 @@ const validateProfileField = (field, value) => {
 
 const profileSelect = 'id, username, role, display_name, email, bio, created_at, updated_at';
 
+const getTotalPoints = async (userId) => {
+  const {rows} = await pool.query(
+    'SELECT COALESCE(sum(points_awarded), 0)::integer AS total FROM level_completions WHERE user_id = $1',
+    [userId],
+  );
+  return rows[0].total;
+};
+
 app.get('/api/profile', requireAuth, async (req, res, next) => {
   try {
     const {rows} = await pool.query(
@@ -171,7 +202,8 @@ app.get('/api/profile', requireAuth, async (req, res, next) => {
       [req.user.id],
     );
     if (!rows[0]) return sendError(res, 404, 'User not found');
-    return res.json({profile: rows[0]});
+    const totalPoints = await getTotalPoints(req.user.id);
+    return res.json({profile: {...rows[0], total_points: totalPoints}});
   } catch (error) {
     return next(error);
   }
@@ -200,13 +232,14 @@ app.put('/api/profile', requireAuth, async (req, res, next) => {
       values,
     );
     if (!rows[0]) return sendError(res, 404, 'User not found');
-    return res.json({profile: rows[0]});
+    const totalPoints = await getTotalPoints(req.user.id);
+    return res.json({profile: {...rows[0], total_points: totalPoints}});
   } catch (error) {
     return next(error);
   }
 });
 
-app.get('/api/collections', async (req, res, next) => {
+app.get('/api/collections', optionalAuth, async (req, res, next) => {
   try {
     const {rows} = await pool.query(
       `SELECT c.id, c.name, c.description,
@@ -230,7 +263,17 @@ app.get('/api/collections', async (req, res, next) => {
        GROUP BY c.id
        ORDER BY c.id`,
     );
-    return res.json({collections: rows});
+
+    let completed_level_ids = [];
+    if (req.user) {
+      const completions = await pool.query(
+        'SELECT level_id FROM level_completions WHERE user_id = $1',
+        [req.user.id],
+      );
+      completed_level_ids = completions.rows.map((row) => row.level_id);
+    }
+
+    return res.json({collections: rows, completed_level_ids});
   } catch (error) {
     return next(error);
   }
@@ -446,6 +489,38 @@ app.put('/api/levels/:id', requireAuth, requireAdmin, async (req, res, next) => 
   } catch (error) {
     if (error.code === '23505') return sendError(res, 409, 'Slug or sort order is already in use');
     if (error.code === '23503') return sendError(res, 400, 'Collection not found');
+    return next(error);
+  }
+});
+
+app.post('/api/levels/:id/complete', requireAuth, async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return sendError(res, 400, 'Invalid level id');
+
+    const {rows} = await pool.query(
+      'SELECT id, difficulty FROM levels WHERE id = $1 AND is_published',
+      [id],
+    );
+    if (!rows[0]) return sendError(res, 404, 'Level not found');
+
+    const points = 100 * rows[0].difficulty;
+    const result = await pool.query(
+      `INSERT INTO level_completions (user_id, level_id, points_awarded)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id, level_id) DO NOTHING`,
+      [req.user.id, id, points],
+    );
+
+    const newlyCompleted = result.rowCount > 0;
+    return res.json({
+      completion: {
+        level_id: id,
+        points: newlyCompleted ? points : 0,
+        newly_completed: newlyCompleted,
+      },
+    });
+  } catch (error) {
     return next(error);
   }
 });
