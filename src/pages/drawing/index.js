@@ -62,12 +62,20 @@ runButton.disabled = true;
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
 let loadedLevel = null;
+let activePair = null;
 const renderAuthLink = setupAuthNavigation(
   {authLink, profileLink},
   () => translations[currentLanguage].common,
 );
 
 const localized = (value, language) => value?.[language] || value?.en || '';
+
+const pickBoardPair = (level) => {
+  if (Array.isArray(level.board_pairs) && level.board_pairs.length > 0) {
+    return level.board_pairs[Math.floor(Math.random() * level.board_pairs.length)];
+  }
+  return {starting_board: level.starting_board, target_board: level.target_board};
+};
 
 const updatePageTitle = () => {
   const copy = translations[currentLanguage].drawing;
@@ -168,7 +176,7 @@ runButton.addEventListener('click', () => {
   Board.reset();
   const code = javascriptGenerator.workspaceToCode(ws);
   eval(code);
-  if (loadedLevel && Board.isSolved(loadedLevel.target_board)) {
+  if (loadedLevel && activePair && Board.isSolved(activePair.target_board)) {
     window.alert(translations[currentLanguage].drawing.levelComplete);
   }
 });
@@ -198,13 +206,14 @@ applyLanguage();
 getLevel(currentLevel)
   .then((level) => {
     loadedLevel = level;
+    activePair = pickBoardPair(level);
     updatePageTitle();
     Board.setup({
-      startingBoard: level.starting_board,
+      startingBoard: activePair.starting_board,
       startingRow: level.starting_row,
       startingColumn: level.starting_column,
     });
-    Board.setupTarget({targetBoard: level.target_board});
+    Board.setupTarget({targetBoard: activePair.target_board});
     runButton.disabled = false;
     setLevelStatus('');
   })

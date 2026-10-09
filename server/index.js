@@ -216,7 +216,8 @@ app.get('/api/collections', async (req, res, next) => {
                     'id', l.id, 'slug', l.slug, 'title', l.title,
                     'description', l.description, 'difficulty', l.difficulty,
                     'sort_order', l.sort_order, 'starting_board', l.starting_board,
-                    'target_board', l.target_board, 'starting_row', l.starting_row,
+                    'target_board', l.target_board, 'board_pairs', l.board_pairs,
+                    'starting_row', l.starting_row,
                     'starting_column', l.starting_column,
                     'validation_config', l.validation_config,
                     'collection_id', l.collection_id
@@ -302,7 +303,7 @@ app.get('/api/levels', async (req, res, next) => {
   try {
     const {rows} = await pool.query(
        `SELECT id, slug, title, description, difficulty, sort_order, collection_id,
-              starting_board, target_board, starting_row, starting_column,
+              starting_board, target_board, board_pairs, starting_row, starting_column,
               validation_config
        FROM levels
        WHERE is_published
@@ -320,7 +321,7 @@ app.get('/api/levels/:id', async (req, res, next) => {
     if (!Number.isInteger(id) || id < 1) return sendError(res, 400, 'Invalid level id');
     const {rows} = await pool.query(
        `SELECT id, slug, title, description, difficulty, sort_order, collection_id,
-              starting_board, target_board, starting_row, starting_column,
+              starting_board, target_board, board_pairs, starting_row, starting_column,
               validation_config
        FROM levels
        WHERE id = $1 AND is_published`,
@@ -337,9 +338,15 @@ const boardIsValid = (board) => (
   board && board.rows === 20 && board.columns === 20 && Array.isArray(board.cells)
 );
 
+const boardPairsValid = (pairs) => (
+  Array.isArray(pairs) &&
+  pairs.length > 0 &&
+  pairs.every((pair) => pair && boardIsValid(pair.starting_board) && boardIsValid(pair.target_board))
+);
+
 const validateLevel = (body, partial = false) => {
-  const fields = ['slug', 'title', 'description', 'difficulty', 'sort_order', 'collection_id', 'starting_board', 'target_board', 'starting_row', 'starting_column', 'validation_config', 'is_published'];
-  if (!partial && fields.some((field) => body[field] === undefined)) return 'All level fields are required';
+  const required = ['slug', 'title', 'description', 'difficulty', 'sort_order', 'collection_id', 'starting_row', 'starting_column', 'validation_config', 'is_published'];
+  if (!partial && required.some((field) => body[field] === undefined)) return 'All level fields are required';
   if (body.slug !== undefined && (typeof body.slug !== 'string' || !/^[a-z0-9-]+$/.test(body.slug))) return 'Invalid slug';
   if (body.difficulty !== undefined && (!Number.isInteger(body.difficulty) || body.difficulty < 1 || body.difficulty > 5)) return 'Invalid difficulty';
   if (body.sort_order !== undefined && (!Number.isInteger(body.sort_order) || body.sort_order < 1)) return 'Invalid sort order';
@@ -348,16 +355,53 @@ const validateLevel = (body, partial = false) => {
   if (body.starting_column !== undefined && (!Number.isInteger(body.starting_column) || body.starting_column < 0 || body.starting_column > 19)) return 'Invalid starting column';
   if (body.starting_board !== undefined && !boardIsValid(body.starting_board)) return 'Invalid starting board';
   if (body.target_board !== undefined && !boardIsValid(body.target_board)) return 'Invalid target board';
+  if (body.board_pairs !== undefined && !boardPairsValid(body.board_pairs)) return 'Invalid board pairs';
+  if (!partial && body.board_pairs === undefined && (body.starting_board === undefined || body.target_board === undefined)) {
+    return 'Board pairs are required';
+  }
   return null;
 };
 
-const levelFields = ['slug', 'title', 'description', 'difficulty', 'sort_order', 'collection_id', 'starting_board', 'target_board', 'starting_row', 'starting_column', 'validation_config', 'is_published'];
+// Normalizes a level request into its board_pairs array plus the legacy
+// starting_board / target_board columns derived from the first pair.
+const resolveBoards = (body) => {
+  if (body.board_pairs !== undefined) {
+    return {
+      board_pairs: body.board_pairs,
+      starting_board: body.board_pairs[0].starting_board,
+      target_board: body.board_pairs[0].target_board,
+    };
+  }
+  return {
+    board_pairs: [{starting_board: body.starting_board, target_board: body.target_board}],
+    starting_board: body.starting_board,
+    target_board: body.target_board,
+  };
+};
+
+const levelFields = ['slug', 'title', 'description', 'difficulty', 'sort_order', 'collection_id', 'starting_board', 'target_board', 'starting_row', 'starting_column', 'validation_config', 'is_published', 'board_pairs'];
+
+const bodyHasBoardPairChange = (body) => (
+  body.board_pairs !== undefined ||
+  body.starting_board !== undefined ||
+  body.target_board !== undefined
+);
+
+const levelInsertValues = (body) => {
+  const boards = resolveBoards(body);
+  return levelFields.map((field) => {
+    if (field === 'starting_board') return boards.starting_board;
+    if (field === 'target_board') return boards.target_board;
+    if (field === 'board_pairs') return JSON.stringify(boards.board_pairs);
+    return body[field];
+  });
+};
 
 app.post('/api/levels', requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const validationError = validateLevel(req.body);
     if (validationError) return sendError(res, 400, validationError);
-    const values = levelFields.map((field) => req.body[field]);
+    const values = levelInsertValues(req.body);
     const placeholders = values.map((_, index) => `$${index + 1}`).join(', ');
     const {rows} = await pool.query(
       `INSERT INTO levels (${levelFields.join(', ')}) VALUES (${placeholders}) RETURNING *`,
@@ -377,8 +421,19 @@ app.put('/api/levels/:id', requireAuth, requireAdmin, async (req, res, next) => 
     if (!Number.isInteger(id) || id < 1) return sendError(res, 400, 'Invalid level id');
     const validationError = validateLevel(req.body, true);
     if (validationError) return sendError(res, 400, validationError);
+
     const updates = levelFields.filter((field) => req.body[field] !== undefined);
+    if (bodyHasBoardPairChange(req.body)) {
+      const boards = resolveBoards(req.body);
+      for (const field of ['starting_board', 'target_board', 'board_pairs']) {
+        if (!updates.includes(field)) updates.push(field);
+      }
+      req.body.starting_board = boards.starting_board;
+      req.body.target_board = boards.target_board;
+      req.body.board_pairs = JSON.stringify(boards.board_pairs);
+    }
     if (!updates.length) return sendError(res, 400, 'No fields to update');
+
     const values = updates.map((field) => req.body[field]);
     const assignments = updates.map((field, index) => `${field} = $${index + 1}`).join(', ');
     values.push(id);

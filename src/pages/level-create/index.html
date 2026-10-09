@@ -33,9 +33,13 @@
             <option value="5">5</option>
           </select>
         </label>
+        <label for="level-pairs"><span id="pairs-label">Board pairs</span> <input id="level-pairs" name="pairs" type="number" min="1" max="50" value="1" /></label>
         <label class="published-field" for="level-published"><input id="level-published" type="checkbox" checked /> <span id="published-label">Published</span></label>
         <button id="level-submit" class="level-submit" type="submit">Create level</button>
       </form>
+      <div class="board-mode" role="tablist" aria-label="Board pair">
+        <div id="pair-selector" class="pair-selector" role="tablist" aria-label="Board pair selection"></div>
+      </div>
       <div class="board-mode" role="tablist" aria-label="Board editor">
         <button id="mode-starting" class="mode-button active" type="button" role="tab" aria-selected="true" data-mode="starting">Starting board</button>
         <button id="mode-target" class="mode-button" type="button" role="tab" aria-selected="false" data-mode="target">Target board</button>

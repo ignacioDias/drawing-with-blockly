@@ -35,11 +35,14 @@ const titleInput = document.getElementById('level-title');
 const descriptionInput = document.getElementById('level-description');
 const difficultyInput = document.getElementById('level-difficulty');
 const publishedInput = document.getElementById('level-published');
+const pairsInput = document.getElementById('level-pairs');
 const submit = document.getElementById('level-submit');
 const titleLabel = document.getElementById('title-label');
 const descriptionLabel = document.getElementById('description-label');
 const difficultyLabel = document.getElementById('difficulty-label');
 const publishedLabel = document.getElementById('published-label');
+const pairsLabel = document.getElementById('pairs-label');
+const pairSelector = document.getElementById('pair-selector');
 const modeStartingButton = document.getElementById('mode-starting');
 const modeTargetButton = document.getElementById('mode-target');
 const boardLabel = document.getElementById('board-label');
@@ -52,8 +55,10 @@ const blocklyDiv = document.getElementById('blocklyDiv');
 let currentLanguage = readLanguage();
 let currentTheme = readTheme();
 let mode = 'starting';
-const boards = {starting: null, target: null};
-const workspaceStates = {starting: null, target: null};
+let currentPair = 0;
+let pairCount = 1;
+const boards = [];
+const workspaceStates = [];
 
 const renderAuthLink = setupAuthNavigation(
   {authLink, profileLink},
@@ -110,20 +115,74 @@ const updateModeUI = () => {
   boardLabel.textContent = mode === 'starting' ? copy.startingBoard : copy.targetBoard;
 };
 
-const switchMode = (nextMode) => {
-  if (nextMode === mode) return;
-  workspaceStates[mode] = Blockly.serialization.workspaces.save(ws);
-  mode = nextMode;
+const ensurePair = (index) => {
+  if (!boards[index]) boards[index] = {starting: null, target: null};
+  if (!workspaceStates[index]) workspaceStates[index] = {starting: null, target: null};
+};
+
+const saveCurrentState = () => {
+  ensurePair(currentPair);
+  workspaceStates[currentPair][mode] = Blockly.serialization.workspaces.save(ws);
+  boards[currentPair][mode] = Board.getBoardState();
+};
+
+const loadCurrentState = () => {
+  ensurePair(currentPair);
+  const state = workspaceStates[currentPair][mode] || null;
   Blockly.Events.disable();
   try {
     ws.clear();
-    if (workspaceStates[mode]) Blockly.serialization.workspaces.load(workspaceStates[mode], ws, false);
+    if (state) Blockly.serialization.workspaces.load(state, ws, false);
   } finally {
     Blockly.Events.enable();
   }
   Board.setup({startingBoard: EMPTY_BOARD, startingRow: 0, startingColumn: 0});
   processCode();
+};
+
+const switchMode = (nextMode) => {
+  if (nextMode === mode) return;
+  saveCurrentState();
+  mode = nextMode;
+  loadCurrentState();
   updateModeUI();
+};
+
+const renderPairSelector = () => {
+  pairSelector.innerHTML = '';
+  const pairText = translations[currentLanguage].create.level.pair;
+  for (let i = 0; i < pairCount; i++) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `pair-button${i === currentPair ? ' active' : ''}`;
+    button.setAttribute('role', 'tab');
+    button.setAttribute('aria-selected', String(i === currentPair));
+    button.textContent = `${pairText} ${i + 1}`;
+    button.addEventListener('click', () => switchPair(i));
+    pairSelector.appendChild(button);
+  }
+};
+
+const switchPair = (nextPair) => {
+  if (nextPair === currentPair) return;
+  saveCurrentState();
+  currentPair = nextPair;
+  loadCurrentState();
+  updateModeUI();
+  renderPairSelector();
+};
+
+const setPairCount = (next) => {
+  const value = Math.max(1, Math.min(50, Math.floor(Number(next)) || 1));
+  if (value === pairCount) return;
+  saveCurrentState();
+  pairCount = value;
+  for (let i = 0; i < pairCount; i++) ensurePair(i);
+  if (currentPair >= pairCount) currentPair = pairCount - 1;
+  loadCurrentState();
+  updateModeUI();
+  renderPairSelector();
+  pairsInput.value = pairCount;
 };
 
 const refreshBlocksLanguage = () => {
@@ -151,6 +210,7 @@ const applyLanguage = () => {
   descriptionLabel.textContent = copy.description;
   difficultyLabel.textContent = copy.difficulty;
   publishedLabel.textContent = copy.published;
+  pairsLabel.textContent = copy.pairs;
   titleInput.placeholder = copy.titlePlaceholder;
   descriptionInput.placeholder = copy.descriptionPlaceholder;
   runButton.textContent = copy.run;
@@ -160,6 +220,7 @@ const applyLanguage = () => {
   modeTargetButton.textContent = copy.targetBoard;
   renderAuthLink();
   updateModeUI();
+  renderPairSelector();
   refreshBlocksLanguage();
   applyTheme();
 };
@@ -167,7 +228,8 @@ const applyLanguage = () => {
 const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
 const captureBoard = () => {
-  boards[mode] = Board.getBoardState();
+  ensurePair(currentPair);
+  boards[currentPair][mode] = Board.getBoardState();
 };
 
 runButton.addEventListener('click', () => {
@@ -187,6 +249,8 @@ clearBoardButton.addEventListener('click', () => {
 modeStartingButton.addEventListener('click', () => switchMode('starting'));
 modeTargetButton.addEventListener('click', () => switchMode('target'));
 
+pairsInput.addEventListener('change', () => setPairCount(pairsInput.value));
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   status.textContent = '';
@@ -194,6 +258,15 @@ form.addEventListener('submit', async (event) => {
   captureBoard();
 
   const title = titleInput.value.trim();
+  const pairs = [];
+  for (let i = 0; i < pairCount; i++) {
+    ensurePair(i);
+    pairs.push({
+      starting_board: boards[i].starting || EMPTY_BOARD,
+      target_board: boards[i].target || EMPTY_BOARD,
+    });
+  }
+
   const level = {
     slug: `${slugify(title) || 'level'}-${Date.now()}`,
     title: {en: title},
@@ -201,8 +274,7 @@ form.addEventListener('submit', async (event) => {
     difficulty: Number(difficultyInput.value),
     sort_order: Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000000),
     collection_id: Number(collectionId),
-    starting_board: boards.starting || EMPTY_BOARD,
-    target_board: boards.target || EMPTY_BOARD,
+    board_pairs: pairs,
     starting_row: 0,
     starting_column: 0,
     validation_config: {type: 'drawing'},

@@ -203,8 +203,16 @@ if (!testDatabaseUrl) {
       difficulty: 1,
       sort_order: 10000 + Math.floor(Math.random() * 1000),
       collection_id: collectionId,
-      starting_board: {rows: 20, columns: 20, cells: []},
-      target_board: {rows: 20, columns: 20, cells: [{row: 0, column: 0, color: '#000000'}]},
+      board_pairs: [
+        {
+          starting_board: {rows: 20, columns: 20, cells: []},
+          target_board: {rows: 20, columns: 20, cells: [{row: 0, column: 0, color: '#000000'}]},
+        },
+        {
+          starting_board: {rows: 20, columns: 20, cells: []},
+          target_board: {rows: 20, columns: 20, cells: [{row: 1, column: 1, color: '#ff0000'}]},
+        },
+      ],
       starting_row: 0,
       starting_column: 0,
       validation_config: {type: 'drawing'},
@@ -216,7 +224,11 @@ if (!testDatabaseUrl) {
       body: JSON.stringify(level),
     });
     assert.equal(response.status, 201);
-    levelId = (await json(response)).level.id;
+    const created = (await json(response)).level;
+    levelId = created.id;
+    assert.equal(created.board_pairs.length, 2);
+    assert.equal(created.starting_board.cells.length, 0);
+    assert.equal(created.target_board.cells[0].color, '#000000');
 
     response = await request(`/api/levels/${levelId}`, {
       method: 'PUT',

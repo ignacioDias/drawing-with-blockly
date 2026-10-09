@@ -1,3 +1,12 @@
 que los pasos de p5 sean secuenciales, nos instantáneos
 cada nivel tiene n tableros iniciales y n finales aosciados, se elige uno random
-descargar actividades
+descargar actividades -> que se guarde lo que avanzaron con blockly
+al crear un nivle, que se puedan elegir los bloques iniciales
+que cada nivel tenga un bloque específico -> desactivar bloques
+dar funciones ya hechas al usuario
+CRUD dese la interfaz
+los usuarios comunes pueden crear collecciones y niveles pero no se guardan en la base de datos
+función para pintar aleatoriamente
+bloques para ver si choqué una pared
+el sistema te dice si un nivel ya está completado
+

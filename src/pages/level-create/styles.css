@@ -289,6 +289,31 @@ html[data-theme="dark"] #theme-toggle {
   color: var(--on-primary);
 }
 
+.pair-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pair-button {
+  min-height: 26px;
+  padding: 0 12px;
+  border: 1px solid var(--chrome-indigo);
+  border-radius: 2px;
+  background: var(--canvas-soft);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.pair-button.active {
+  background: var(--chrome-indigo);
+  color: var(--on-primary);
+}
+
 #editor {
   display: grid;
   grid-template-columns: 220px minmax(320px, 1fr) 424px;
